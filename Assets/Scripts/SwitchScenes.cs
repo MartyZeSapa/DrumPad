@@ -1,42 +1,43 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-
 public class SwitchScenes : MonoBehaviour
 {
-    public Image On;
-    public Image Off;
-    public GameObject Mode1;
-    public GameObject Mode2;
-    public bool lastMode;
+    public Button m1Button;
+    public Button m2Button;
+    public Button m3Button;
 
-    void Start()
+    public GameObject m1Drumpad;
+    public GameObject m2Drumpad;
+    public GameObject m3Drumpad;
+
+    public void Start()
     {
-
+        m1Button.onClick.AddListener(m1ButtonClick);
+        m2Button.onClick.AddListener(m2ButtonClick);
+        m3Button.onClick.AddListener(m3ButtonClick);
     }
 
-    public void ON()
+    public void m1ButtonClick()
     {
-        Off.gameObject.SetActive(true);
-        On.gameObject.SetActive(false);
-        Mode2.SetActive(true);
-        Mode1.SetActive(false);
-        lastMode = false;
+        m1Drumpad.SetActive(true);
 
-        //false -> Mode2
-
+        m2Drumpad.SetActive(false);
+        m3Drumpad.SetActive(false);
     }
 
-    public void OFF()
+    public void m2ButtonClick()
     {
-        On.gameObject.SetActive(true);
-        Off.gameObject.SetActive(false);
-        Mode1.SetActive(true);
-        Mode2.SetActive(false);
-        lastMode = true;
+        m2Drumpad.SetActive(true);
 
-        //true -> Mode1
+        m1Drumpad.SetActive(false);
+        m3Drumpad.SetActive(false);
+    }
+
+    public void m3ButtonClick()
+    {
+        m3Drumpad.SetActive(true);
+
+        m1Drumpad.SetActive(false);
+        m2Drumpad.SetActive(false);
     }
 }
