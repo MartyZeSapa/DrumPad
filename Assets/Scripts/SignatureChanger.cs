@@ -1,63 +1,98 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable] // This makes the Row class able to be shown in the Inspector
-public class Row
-{
-    public GameObject[] beats; // This array will show in the Inspector
-}
-
 public class SignatureChanger : MonoBehaviour
 {
+    public Button oneFourButton;
+    public Button twoFourButton;
+    public Button fourFourButton;
 
-    [SerializeField] private Button fourFourButton;
-    [SerializeField] private Button eightFourButton;
-    [SerializeField] private Button sixteenFourButton;
-
-    public Row[] m1BeatsRows = new Row[4]; // This will create 4 rows for m1Beats
-    public Row[] m2BeatsRows = new Row[6]; // This will create 6 rows for m2Beats
+    public GameObject mode1;
+    public GameObject mode2;
 
     void Start()
     {
-        fourFourButton.onClick.AddListener(() => ChangeSignature(4));
-        eightFourButton.onClick.AddListener(() => ChangeSignature(2));
-        sixteenFourButton.onClick.AddListener(() => ChangeSignature(1));
-
-        for (int i = 0; i < m1BeatsRows.Length; i++)
-            m1BeatsRows[i] = new Row { beats = new GameObject[16] };
-        for (int i = 0; i < m2BeatsRows.Length; i++)
-            m2BeatsRows[i] = new Row { beats = new GameObject[64] };
+        oneFourButton.onClick.AddListener(() => SetTimeSignature(4));
+        twoFourButton.onClick.AddListener(() => SetTimeSignature(2));
+        fourFourButton.onClick.AddListener(() => SetTimeSignature(1));
     }
 
-    private void ChangeSignature(int division)
+    void SetTimeSignature(int activeBeats)
     {
-        DeactivateAllBeats(m1BeatsRows);
-        DeactivateAllBeats(m2BeatsRows);
-
-        ActivateBeats(m1BeatsRows, division);
-        ActivateBeats(m2BeatsRows, division);
+        // Set time signature for both Mode1 and Mode2
+        SetSignatureForMode(mode1, "Row", "Bar", 4, activeBeats);
+        SetSignatureForMode(mode2, "Row", "Beat Panel/Section", 6, activeBeats);
     }
 
-    private void DeactivateAllBeats(Row[] beatsRows)
+    void SetSignatureForMode(GameObject mode, string rowPrefix, string sectionPrefix, int rowsCount, int activeBeats)
     {
-        foreach (Row row in beatsRows)
+
+        // Iterate through each Row
+        for (int i = 1; i <= rowsCount; i++)
         {
-            foreach (GameObject beat in row.beats)
+            GameObject row = FindChildByName(mode, $"{rowPrefix}{i}");
+            if (row == null) continue;
+
+            // Iterate through each Section/Bar within the Row
+            for (int j = 1; j <= 4; j++)
             {
-                beat.SetActive(false);
+                GameObject section = FindChildByName(row, $"{sectionPrefix}{j}");
+                if (section == null) continue;
+
+                // If in Mode2, we find each Bar inside the Section
+                if (sectionPrefix.Contains("Beat Panel"))
+                {
+                    for (int k = 1; k <= 4; k++)
+                    {
+                        GameObject bar = FindChildByName(section, $"Bar{k}");
+                        if (bar == null) continue;
+                        ToggleButtonsActive(bar, activeBeats);
+                    }
+                }
+                else
+                {
+                    // If in Mode1, the section itself is the Bar
+                    ToggleButtonsActive(section, activeBeats);
+                }
             }
         }
     }
 
-    private void ActivateBeats(Row[] beatsRows, int division)
+    GameObject FindChildByName(GameObject parent, string name)
     {
-        foreach (Row row in beatsRows)
+        Transform child = parent.transform.Find(name);
+        if (child == null)
         {
-            for (int beat = 0; beat < row.beats.Length; beat += division)
+            Debug.LogError($"{name} not found under {parent.name}");
+            return null;
+        }
+        return child.gameObject;
+    }
+
+    void ToggleButtonsActive(GameObject bar, int activeBeats)
+    {
+        // Iterate over the buttons within the Bar
+        for (int l = 1; l <= 4; l++)
+        {
+            Button button = bar.transform.Find("Button" + l.ToString())?.GetComponent<Button>();
+            if (button == null)
             {
-                if (row.beats[beat] != null) // Check to avoid null reference
-                    row.beats[beat].SetActive(true);
+                Debug.LogError($"Button {l} not found under {bar.name}");
+                continue;
             }
+
+            // Determine if the button should be active based on the activeBeats
+            // Activate only the first button if activeBeats is 4 (for oneFourButton)
+            // Activate first and third buttons if activeBeats is 2 (for twoFourButton)
+            // Activate all buttons if activeBeats is 1 (for fourFourButton)
+
+            bool shouldActivate = (activeBeats == 4 && l == 1) ||
+                                  (activeBeats == 2 && (l == 1 || l == 3)) ||
+                                  (activeBeats == 1);
+
+            button.gameObject.SetActive(shouldActivate);
         }
     }
+
+
 }
