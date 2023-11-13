@@ -81,11 +81,6 @@ public class SignatureChanger : MonoBehaviour
                 continue;
             }
 
-            // Determine if the button should be active based on the activeBeats
-            // Activate only the first button if activeBeats is 4 (for oneFourButton)
-            // Activate first and third buttons if activeBeats is 2 (for twoFourButton)
-            // Activate all buttons if activeBeats is 1 (for fourFourButton)
-
             bool shouldActivate = (activeBeats == 4 && l == 1) ||
                                   (activeBeats == 2 && (l == 1 || l == 3)) ||
                                   (activeBeats == 1);
