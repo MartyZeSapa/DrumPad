@@ -11,6 +11,7 @@ public class ColorChanger : MonoBehaviour
     public Image headAndDrumpadSliderBackground;
 
 
+
     public TMP_InputField hexInputField1;
     public TMP_InputField hexInputField2;
 
@@ -76,6 +77,7 @@ public class ColorChanger : MonoBehaviour
         if (!hexValue.StartsWith("#"))
         {
             hexValue = "#" + hexValue;
+            hexInputField1.text = hexValue;
         }
 
         Color newColor;

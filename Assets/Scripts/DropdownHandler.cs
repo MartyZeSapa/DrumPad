@@ -1,10 +1,11 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class DropdownHandler : MonoBehaviour
 {
-    public TMP_Dropdown Dropdown;
+    public TMP_Dropdown dropdown;
     public GameObject colorPanel;
     public GameObject barSelectPanel;
 
@@ -12,16 +13,12 @@ public class DropdownHandler : MonoBehaviour
 
     private void Start()
     {
-        Dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+        dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
     }
 
     private void Update()
     {
-        if (resetDropdown)
-        {
-            Dropdown.SetValueWithoutNotify(-1);
-            resetDropdown = false;
-        }
+
     }
 
     public void OnDropdownValueChanged(int index)
@@ -29,13 +26,18 @@ public class DropdownHandler : MonoBehaviour
         if (index == 0)
         {
             barSelectPanel.SetActive(true);
-            resetDropdown = true;
+
+            colorPanel.SetActive(false);
+            dropdown.SetValueWithoutNotify(-1);
         }
 
         if (index == 2)
         {
             colorPanel.SetActive(true);
+
+            barSelectPanel.SetActive(false);
             resetDropdown = true;
+            dropdown.SetValueWithoutNotify(-1);
         }
     }
 }
