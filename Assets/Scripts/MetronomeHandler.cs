@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MetronomeChanger : MonoBehaviour
+public class MetronomeHandler : MonoBehaviour
 {
     public Button button1;
     public Button button2;

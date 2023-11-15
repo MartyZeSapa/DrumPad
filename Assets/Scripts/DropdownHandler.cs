@@ -9,7 +9,6 @@ public class DropdownHandler : MonoBehaviour
     public GameObject colorPanel;
     public GameObject barSelectPanel;
 
-    private bool resetDropdown;
 
     private void Start()
     {
@@ -25,18 +24,18 @@ public class DropdownHandler : MonoBehaviour
     {
         if (index == 0)
         {
-            barSelectPanel.SetActive(true);
+            barSelectPanel.SetActive(!barSelectPanel.activeInHierarchy);     // prepina mezi active a inactive
 
             colorPanel.SetActive(false);
             dropdown.SetValueWithoutNotify(-1);
         }
 
+
         if (index == 2)
         {
-            colorPanel.SetActive(true);
+            colorPanel.SetActive(!colorPanel.activeInHierarchy);
 
             barSelectPanel.SetActive(false);
-            resetDropdown = true;
             dropdown.SetValueWithoutNotify(-1);
         }
     }

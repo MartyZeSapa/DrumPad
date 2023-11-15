@@ -19,20 +19,40 @@ public class SignatureChanger : MonoBehaviour
 
     void SetTimeSignature(int activeBeats)
     {
-        SetSignatureForMode(mode1, activeBeats);
-        SetSignatureForMode(mode2, activeBeats);
+        SetSignatureForMode1(activeBeats);
+        SetSignatureForMode2 (activeBeats);
     }
 
-    void SetSignatureForMode(GameObject mode, int activeBeats)
+    void SetSignatureForMode1(int activeBeats)
     {
-        foreach (Transform row in mode.transform)
+        foreach (Transform row in mode1.transform)
         {
-            foreach (Transform section in row)
+            foreach (Transform bar in row)
             {
-                ToggleButtonsActive(section.gameObject, activeBeats);
+                ToggleButtonsActive(bar.gameObject, activeBeats);
             }
         }
     }
+
+    void SetSignatureForMode2(int activeBeats)
+    {
+        foreach (Transform row in mode2.transform)
+        {
+            Transform beatPanel = row.Find("Beat Panel");     //najde beat panel v row
+            if (beatPanel != null)
+            {
+                foreach (Transform section in beatPanel)
+                {
+                    foreach (Transform bar in section)
+                    {
+                        ToggleButtonsActive(bar.gameObject, activeBeats);
+                    }
+                }
+            }
+        }
+    }
+
+
 
     void ToggleButtonsActive(GameObject bar, int activeBeats)
     {
