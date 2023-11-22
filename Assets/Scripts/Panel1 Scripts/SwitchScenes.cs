@@ -10,6 +10,7 @@ public class SwitchScenes : MonoBehaviour
     public GameObject m2Drumpad;
     public GameObject m3Drumpad;
 
+
     public void Start()
     {
         m1Button.onClick.AddListener(m1ButtonClick);
@@ -23,6 +24,10 @@ public class SwitchScenes : MonoBehaviour
 
         m2Drumpad.SetActive(false);
         m3Drumpad.SetActive(false);
+
+        m1Button.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
+        m2Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        m3Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
     }
 
     public void m2ButtonClick()
@@ -31,6 +36,10 @@ public class SwitchScenes : MonoBehaviour
 
         m1Drumpad.SetActive(false);
         m3Drumpad.SetActive(false);
+
+        m1Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        m2Button.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
+        m3Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
     }
 
     public void m3ButtonClick()
@@ -39,5 +48,9 @@ public class SwitchScenes : MonoBehaviour
 
         m1Drumpad.SetActive(false);
         m2Drumpad.SetActive(false);
+
+        m1Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        m2Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        m3Button.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
     }
 }

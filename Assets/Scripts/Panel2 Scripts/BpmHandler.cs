@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
-public class BpmValue : MonoBehaviour
+public class BpmHandler : MonoBehaviour
 {
     public Button plus;
     public Button minus;
