@@ -7,18 +7,19 @@ public class SoundData : MonoBehaviour
     public AudioClip soundClip;
     private AudioSource audioSource;
 
-    public TextMeshProUGUI buttonText;
+    private TextMeshProUGUI buttonText;
 
     void Start()
     {
-        // Add an AudioSource component if not already attached
-        if (!TryGetComponent(out audioSource))
-        {
-            audioSource = gameObject.AddComponent<AudioSource>();
-        }
-
-        // Set the AudioSource clip
+        audioSource = GetComponent<AudioSource>();
         audioSource.clip = soundClip;
+
+        // Find the child TextMeshProUGUI component and assign it to buttonText
+        Transform textTransform = transform.Find("Text (TMP)");
+        if (textTransform != null)
+        {
+            buttonText = textTransform.GetComponent<TextMeshProUGUI>();
+        }
 
         UpdateButtonName();
     }
@@ -27,14 +28,13 @@ public class SoundData : MonoBehaviour
     {
         if (soundClip != null)
         {
-            audioSource.clip = soundClip;
             audioSource.Play();
         }
     }
 
     void UpdateButtonName()
     {
-        if (audioSource.clip != null)
+        if (audioSource.clip != null && buttonText != null)
         {
             buttonText.text = audioSource.clip.name;
         }

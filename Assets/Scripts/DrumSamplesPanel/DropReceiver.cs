@@ -13,7 +13,6 @@ public class DropReceiver : MonoBehaviour, IDropHandler
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // Set the AudioSource clip
         
 
     }

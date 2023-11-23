@@ -10,6 +10,7 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     private RectTransform canvasRectTransform;
 
     private float dragStartTime;
+    private Vector3 originalPosition; // Store the original position for resetting
 
     private void Awake()
     {
@@ -20,6 +21,9 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         {
             canvasRectTransform = canvas.GetComponent<RectTransform>();
         }
+
+        // Store the original position when the script starts
+        originalPosition = rectTransform.position;
     }
 
     private Canvas FindCanvas()
@@ -50,12 +54,10 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         cloneCanvasGroup.alpha = 0.6f; // Make the clone semi-transparent
         cloneCanvasGroup.blocksRaycasts = false; // Allow raycasts to pass through the clone
 
-        canvasGroup.alpha = 0.6f; // Optionally make the original semi-transparent
+        //canvasGroup.alpha = 0.6f; // Optionally make the original semi-transparent
 
         // Set initial position of the clone to the mouse position
         UpdateClonePosition(eventData);
-
-        
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -67,7 +69,7 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     {
         if (clonePanel != null && canvasRectTransform != null)
         {
-            Vector3 globalMousePos; // Changed from Vector2 to Vector3
+            Vector3 globalMousePos;
             if (RectTransformUtility.ScreenPointToWorldPointInRectangle(canvasRectTransform, eventData.position, eventData.pressEventCamera, out globalMousePos))
             {
                 clonePanel.transform.position = globalMousePos;
@@ -79,14 +81,15 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
     public void OnEndDrag(PointerEventData eventData)
     {
-
         float dragDuration = Time.time - dragStartTime;
 
-        if (dragDuration < 0.15f) // Threshold for considering it a click, adjust as needed
+        if (dragDuration < 0.001f) // Threshold for considering it a click, adjust as needed
         {
+            // Play sound directly when a click is detected
             GetComponent<SoundData>()?.PlaySound();
         }
 
+        // Reset the original position
 
         // Destroy the clone
         if (clonePanel != null)

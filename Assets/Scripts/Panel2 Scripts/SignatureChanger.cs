@@ -8,7 +8,7 @@ public class SignatureChanger : MonoBehaviour
     public Button fourFourButton;
 
     public GameObject mode1;
-    public GameObject mode2;
+    public GameObject mode2content;
 
     void Start()
     {
@@ -36,7 +36,7 @@ public class SignatureChanger : MonoBehaviour
 
     void SetSignatureForMode2(int activeBeats)
     {
-        foreach (Transform row in mode2.transform)
+        foreach (Transform row in mode2content.transform)
         {
             Transform beatPanel = row.Find("Beat Panel");     //najde beat panel v row
             if (beatPanel != null)

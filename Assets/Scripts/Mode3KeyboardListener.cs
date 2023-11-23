@@ -21,46 +21,68 @@ public class Mode3KeyboardListener : MonoBehaviour
 
     public GameObject m3Drumpad;
 
+    private HashSet<char> pressedKeys = new HashSet<char>();
+
     void Update()
     {
-        if (Input.anyKeyDown)
+        if (m3Drumpad.activeInHierarchy && m3Drumpad.GetComponent<MonoBehaviour>().enabled)
         {
-            if (m3Drumpad.activeInHierarchy && m3Drumpad.GetComponent<MonoBehaviour>().enabled)
+            foreach (char inputChar in Input.inputString)
             {
+                if (char.IsDigit(inputChar))
                 {
-                    switch (Input.inputString)
+                    if (pressedKeys.Contains(inputChar))
                     {
-                        case "0":
-                            button0.onClick.Invoke();
-                            break;
-                        case "1":
-                            button1.onClick.Invoke();
-                            break;
-                        case "2":
-                            button2.onClick.Invoke();
-                            break;
-                        case "3":
-                            button3.onClick.Invoke();
-                            break;
-                        case "4":
-                            button4.onClick.Invoke();
-                            break;
-                        case "5":
-                            button5.onClick.Invoke();
-                            break;
-                        case "6":
-                            button6.onClick.Invoke();
-                            break;
-                        case "7":
-                            button7.onClick.Invoke();
-                            break;
-                        case "8":
-                            button8.onClick.Invoke();
-                            break;
-                        case "9":
-                            button9.onClick.Invoke();
-                            break;
+                        // Key is already pressed, do nothing
                     }
+                    else
+                    {
+                        // Key is pressed for the first time, invoke the corresponding button's onClick
+                        pressedKeys.Add(inputChar);
+                        switch (inputChar)
+                        {
+                            case '0':
+                                button0.onClick.Invoke();
+                                break;
+                            case '1':
+                                button1.onClick.Invoke();
+                                break;
+                            case '2':
+                                button2.onClick.Invoke();
+                                break;
+                            case '3':
+                                button3.onClick.Invoke();
+                                break;
+                            case '4':
+                                button4.onClick.Invoke();
+                                break;
+                            case '5':
+                                button5.onClick.Invoke();
+                                break;
+                            case '6':
+                                button6.onClick.Invoke();
+                                break;
+                            case '7':
+                                button7.onClick.Invoke();
+                                break;
+                            case '8':
+                                button8.onClick.Invoke();
+                                break;
+                            case '9':
+                                button9.onClick.Invoke();
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // Check for released keys
+            foreach (char key in new HashSet<char>(pressedKeys))
+            {
+                if (!Input.inputString.Contains(key.ToString()))
+                {
+                    // Key is released, remove it from the pressed keys
+                    pressedKeys.Remove(key);
                 }
             }
         }
