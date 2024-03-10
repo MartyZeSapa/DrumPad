@@ -29,7 +29,7 @@ public class SoundData : MonoBehaviour
         }
     }
 
-    void UpdateButtonName()
+    public void UpdateButtonName()
     {
         if (audioSource.clip != null && buttonText != null)
         {

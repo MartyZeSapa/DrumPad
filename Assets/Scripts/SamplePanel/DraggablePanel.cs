@@ -52,7 +52,7 @@ public class DraggablePanel : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         UpdateClonePosition(eventData);
     }
 
-    private void UpdateClonePosition(PointerEventData eventData)
+    public void UpdateClonePosition(PointerEventData eventData)
     {
         if (clonePanel != null && canvasRectTransform != null)
         {

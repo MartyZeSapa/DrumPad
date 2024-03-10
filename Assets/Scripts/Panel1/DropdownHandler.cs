@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class DropdownHandler : MonoBehaviour
 {
-    public TMP_Dropdown dropdown;
+    [SerializeField]
+    private TMP_Dropdown dropdown;
 
 
     private void Start()
@@ -14,7 +15,7 @@ public class DropdownHandler : MonoBehaviour
     }
 
 
-    public void OnDropdownValueChanged(int index)
+    private void OnDropdownValueChanged(int index)
     {
         if (index == 0)
         {

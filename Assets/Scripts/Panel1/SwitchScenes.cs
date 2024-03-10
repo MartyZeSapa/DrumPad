@@ -2,13 +2,19 @@ using UnityEngine;
 using UnityEngine.UI;
 public class SwitchScenes : MonoBehaviour
 {
-    public Button m1Button;
-    public Button m2Button;
-    public Button m3Button;
+    [SerializeField]
+    private Button m1Button;
+    [SerializeField]
+    private Button m2Button;
+    [SerializeField]
+    private Button m3Button;
 
-    public GameObject m1Drumpad;
-    public GameObject m2Drumpad;
-    public GameObject m3Drumpad;
+    [SerializeField]
+    private GameObject m1Drumpad;
+    [SerializeField]
+    private GameObject m2Drumpad;
+    [SerializeField]
+    private GameObject m3Drumpad;
 
 
     public void Start()
@@ -18,7 +24,7 @@ public class SwitchScenes : MonoBehaviour
         m3Button.onClick.AddListener(m3ButtonClick);
     }
 
-    public void m1ButtonClick()
+    private void m1ButtonClick()
     {
         m1Drumpad.SetActive(true);
 
@@ -30,7 +36,7 @@ public class SwitchScenes : MonoBehaviour
         m3Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
     }
 
-    public void m2ButtonClick()
+    private void m2ButtonClick()
     {
         m2Drumpad.SetActive(true);
 
@@ -42,7 +48,7 @@ public class SwitchScenes : MonoBehaviour
         m3Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
     }
 
-    public void m3ButtonClick()
+    private void m3ButtonClick()
     {
         m3Drumpad.SetActive(true);
 

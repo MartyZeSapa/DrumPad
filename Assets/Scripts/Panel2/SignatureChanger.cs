@@ -3,72 +3,65 @@ using UnityEngine.UI;
 
 public class SignatureChanger : MonoBehaviour
 {
-    public Button oneFourButton;
-    public Button twoFourButton;
-    public Button fourFourButton;
+    [SerializeField]
+    private Button oneFourButton;
+    [SerializeField]
+    private Button twoFourButton;
+    [SerializeField]
+    private Button fourFourButton;
 
-    public GameObject mode1;
-    public GameObject mode2content;
+    private GameManager gameManager;
 
     void Start()
     {
-        oneFourButton.onClick.AddListener(() => SetTimeSignature(4));
+        // Najde GameManager v instanci scény
+        gameManager = FindObjectOfType<GameManager>();
+
+        oneFourButton.onClick.AddListener(() => SetTimeSignature(1));
         twoFourButton.onClick.AddListener(() => SetTimeSignature(2));
-        fourFourButton.onClick.AddListener(() => SetTimeSignature(1));
+        fourFourButton.onClick.AddListener(() => SetTimeSignature(4));
     }
 
-    void SetTimeSignature(int activeBeats)
+    private void SetTimeSignature(int activeBeats)
     {
         SetSignatureForMode1(activeBeats);
-        SetSignatureForMode2 (activeBeats);
+        SetSignatureForMode2(activeBeats);
     }
 
-    void SetSignatureForMode1(int activeBeats)
+    private void SetSignatureForMode1(int activeBeats)
     {
-        foreach (Transform row in mode1.transform)
+        // Projede tlaèítka z modu1
+        foreach (Button button in gameManager.m1Buttons)
         {
-            foreach (Transform bar in row)
+            ToggleButtonActive(button, activeBeats);
+        }
+    }
+
+    private void SetSignatureForMode2(int activeBeats)
+    {
+        // Projede øady v modu2
+        foreach (var rowButtons in gameManager.mode2Rows)
+        {   // Projede tlaèítka øady
+            foreach (Button button in rowButtons)
             {
-                ToggleButtonsActive(bar.gameObject, activeBeats);
+                ToggleButtonActive(button, activeBeats);
             }
         }
     }
 
-    void SetSignatureForMode2(int activeBeats)
+    private void ToggleButtonActive(Button button, int activeBeats)
     {
-        foreach (Transform row in mode2content.transform)
+        if (button != null)
         {
-            Transform beatPanel = row.Find("Beat Panel");     // Najde "Beat Panel" v "Row"
-            if (beatPanel != null)
-            {
-                foreach (Transform section in beatPanel)
-                {
-                    foreach (Transform bar in section)
-                    {
-                        ToggleButtonsActive(bar.gameObject, activeBeats);
-                    }
-                }
-            }
-        }
-    }
+            // Zjistí index tlaèítka v kontextu baru
+            int buttonIndex = button.transform.GetSiblingIndex();
+
+            bool shouldActivate = (activeBeats == 1 && buttonIndex == 0) ||
+                                  (activeBeats == 2 && (buttonIndex == 0 || buttonIndex == 2)) ||
+                                  (activeBeats == 4);
 
 
-
-    void ToggleButtonsActive(GameObject bar, int activeBeats)
-    {
-        for (int i = 0; i < bar.transform.childCount; i++)
-        {
-            Transform buttonTransform = bar.transform.GetChild(i);
-            Button button = buttonTransform.GetComponent<Button>();
-
-            if (button != null)
-            {
-                bool shouldActivate = (activeBeats == 4 && i == 0) ||
-                                      (activeBeats == 2 && (i == 0 || i == 2)) ||
-                                      (activeBeats == 1);
-
-                button.gameObject.SetActive(shouldActivate);
-            }
+            button.gameObject.SetActive(shouldActivate);
         }
     }
 }

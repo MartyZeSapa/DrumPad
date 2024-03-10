@@ -3,13 +3,15 @@ using UnityEngine.EventSystems;
 
 public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    public BpmHandler bpmHandler;
-    public bool raiseValue;
+    [SerializeField]
+    private BpmHandler bpmHandler;
+
+    private bool raiseValue;
 
     private bool isPressed = false;
     private float timeSinceLastChange = 0f;
-    private float delay = 0.05f; // Delay in seconds between value changes
-    private float initialDelay = 0.2f; // Initial delay to avoid immediate increment/decrement on click
+    private float delay = 0.05f; // Delay v sekundách mezi zmìnou hodnoty
+    private float initialDelay = 0.2f; // Poèátèní delay aby jsme se vyhnuli instantnímu zvýšení/snížení hodnoty pøi kliknutí
 
     void Update()
     {
@@ -19,14 +21,14 @@ public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
             if (timeSinceLastChange >= initialDelay && timeSinceLastChange - Time.deltaTime < initialDelay)
             {
-                // First update after initial delay - increment/decrement once
+                // První update po poèáteèním delayi - zvýší/sníží jednou
                 ChangeValue();
             }
             else if (timeSinceLastChange >= delay + initialDelay)
             {
-                // Subsequent updates - increment/decrement continuously
+                // Následující updaty - pokraèuje ve zvyšování/snižování hodnoty
                 ChangeValue();
-                timeSinceLastChange = initialDelay; // Reset time to maintain delay
+                timeSinceLastChange = initialDelay; // Resetuje èas aby zùstal delay
             }
         }
     }
@@ -42,7 +44,7 @@ public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         isPressed = true;
-        timeSinceLastChange = 0f; // Reset timer on pointer down
+        timeSinceLastChange = 0f; // Resetuje timer pøi kliknutí
     }
 
     public void OnPointerUp(PointerEventData eventData)

@@ -3,21 +3,23 @@ using UnityEngine.UI;
 using TMPro;
 
 public class ColorChanger : MonoBehaviour
-{
-    public Slider slider;
+{   
+    [SerializeField]
+    private Slider slider;
 
-    public TMP_InputField hexInputField;
+    [SerializeField]
+    private TMP_InputField hexInputField;
 
-
-    public Image Background;
-    public Image backgroundSliderBackground;
+    [SerializeField]
+    private Image Background;
+    [SerializeField]
+    private Image backgroundSliderBackground;
 
 
 
     private bool updatingHexField = false;
 
     private float backgroundSliderValue;
-    private float headAndDrumpadSliderValue;
 
 
     void Start()
@@ -27,7 +29,7 @@ public class ColorChanger : MonoBehaviour
         hexInputField.onValueChanged.AddListener(OnHexInputField1EndEdit);
     }
 
-    public void OnSliderChanged(float value)
+    private void OnSliderChanged(float value)
     {
         backgroundSliderValue = value;
         Color newColor = Color.HSVToRGB(value, 1f, 1f);   //(hue, saturation, brightness) 0-1
@@ -42,7 +44,7 @@ public class ColorChanger : MonoBehaviour
     }
 
 
-    public void OnHexInputField1EndEdit(string hexValue)
+    private void OnHexInputField1EndEdit(string hexValue)
     {
         
         if (!hexValue.StartsWith("#")) // Zajisti že text v input fieldu zaèíná "#"

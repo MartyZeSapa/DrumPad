@@ -3,9 +3,12 @@ using UnityEngine.UI;
 
 public class MetronomeHandler : MonoBehaviour
 {
-    public Button button1;
-    public Button button2;
-    public Button button3;
+    [SerializeField]
+    private Button button1;
+    [SerializeField]
+    private Button button2;
+    [SerializeField]
+    private Button button3;
 
     void Start()
     {

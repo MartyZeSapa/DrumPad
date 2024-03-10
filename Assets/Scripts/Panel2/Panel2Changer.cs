@@ -5,13 +5,17 @@ using UnityEngine.UI;
 
 public class Panel2Changer : MonoBehaviour
 {
+    [SerializeField]
+    private Button MetronomeButton;
+    [SerializeField]
+    private Button SignatureButton;
+    [SerializeField]
+    private Button ColorButton;
 
-    public Button MetronomeButton;
-    public Button SignatureButton;
-    public Button ColorButton;
-
-    public GameObject signaturePanel;
-    public GameObject colorPanel;
+    [SerializeField]
+    private GameObject signaturePanel;
+    [SerializeField]
+    private GameObject colorPanel;
    
 
     void Start()

@@ -6,10 +6,15 @@ using UnityEngine.UI;
 
 public class BpmHandler : MonoBehaviour
 {
-    public Button plus;
-    public Button minus;
-    public Slider slider;
-    public TMP_InputField bpmValue;
+    [SerializeField]
+    private Button plus;
+    [SerializeField]
+    private Button minus;
+    [SerializeField]
+    private Slider slider;
+    [SerializeField]
+    private TMP_InputField bpmValue;
+    [SerializeField]
 
     void Start()
     {
