@@ -5,34 +5,57 @@ using System.Collections.Generic;
 
 public class m1Button : MonoBehaviour, IDropHandler
 {
+    public int buttonIndex;
 
     public List<Image> quadrantImages;
 
-    public int buttonIndex;
+    
 
-    void Start()
+    void Start()    // Nastaví barvu kvadrantù na transparentní
     {
-        // Nastaví barvu kvadrantù na transparentní
         foreach (var image in quadrantImages)
         {
             image.color = Color.clear;
         }
     }
 
-    public void OnDrop(PointerEventData eventData)
+
+
+
+
+
+
+
+
+
+    public void OnDrop(PointerEventData eventData)    // Pøidá SampleData do beatu, zmìní barvu
     {
         GameObject droppedObject = eventData.pointerDrag; // Odkaz na dropnutý objekt
 
         if (droppedObject != null)
         {
-            AudioClip droppedClip = droppedObject.GetComponent<SoundData>()?.soundClip; // Odkazuje na clip co jsme dropli
+            AudioClip droppedClip = droppedObject.GetComponent<SoundData>()?.soundClip; // Odkaz na clip dropnutého objektu
+            Color droppedColor = droppedObject.GetComponent<Image>().color;             //          barvu
 
-            GameManager.Instance.Beats[buttonIndex].Add(droppedClip);
 
-            GameManager.Instance.LogBeatsListContents();
-            
+            SampleData sampleData = new SampleData(droppedClip, droppedColor);                                                // Pøidá SampleData do beatu pokud tam již není
+            bool exists = GameManager.Instance.Beats[buttonIndex].Exists(sd => sd.audioClip == droppedClip);
+            if (!exists)
+            {
+                GameManager.Instance.AddSampleDataIfUnique(buttonIndex, sampleData);
 
-            UpdateQuadrantAppearance(droppedObject.GetComponent<Image>().color); // Zmìní barvu kvadrantu
+
+                UpdateQuadrantAppearance(droppedColor); // Zmìní barvu kvadrantu
+                GameManager.Instance.LogBeatsListContents();
+            }
+            else
+            {
+                Debug.Log($"This Sample is already assigned to this beat.");
+            }
+
+
+
+
         }
     }
 
@@ -42,9 +65,20 @@ public class m1Button : MonoBehaviour, IDropHandler
 
 
 
+
+    public void ClearQuadrantColors()
+    {
+        foreach (var image in quadrantImages)
+        {
+            image.color = Color.clear; // Sets the color to transparent
+        }
+    }
+
+
+
     private void UpdateQuadrantAppearance(Color color)
     {
-        if (GameManager.Instance.Beats[buttonIndex].Count <= quadrantImages.Count)
+        if (GameManager.Instance.Beats[buttonIndex].Count <= 4)
         {
             quadrantImages[GameManager.Instance.Beats[buttonIndex].Count - 1].color = color;
         }
