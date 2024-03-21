@@ -27,6 +27,8 @@ public class SwitchScenes : MonoBehaviour
     private void m1ButtonClick()
     {
 
+        GameManager.Instance.UpdateMode1UI();
+
         m1Drumpad.SetActive(true);
 
         m2Drumpad.SetActive(false);
@@ -36,14 +38,13 @@ public class SwitchScenes : MonoBehaviour
         m2Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
         m3Button.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
 
-
-        GameManager.Instance.UpdateMode1UI();
-
-
     }
 
     private void m2ButtonClick()
     {
+        GameManager.Instance.UpdateMode2UI();
+
+
         m2Drumpad.SetActive(true);
 
         m1Drumpad.SetActive(false);
@@ -55,7 +56,7 @@ public class SwitchScenes : MonoBehaviour
 
 
 
-        GameManager.Instance.UpdateMode2UI();
+        
     }
 
     private void m3ButtonClick()

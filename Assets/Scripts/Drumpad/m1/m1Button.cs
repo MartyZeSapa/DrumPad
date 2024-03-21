@@ -1,21 +1,40 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using System.Collections.Generic;
+    using UnityEngine;
+    using UnityEngine.EventSystems;
+    using UnityEngine.UI;
+    using System.Collections.Generic;
 
-public class m1Button : MonoBehaviour, IDropHandler
-{
-    public int buttonIndex;
-
-    public List<Image> quadrantImages;
-
-    
-
-    void Start()    // Nastaví barvu kvadrantù na transparentní
+    public class m1Button : MonoBehaviour, IDropHandler
     {
-        foreach (var image in quadrantImages)
+        public int buttonIndex;
+
+        public List<Image> quadrantImages;
+
+        private const int MaxSamplesPerBeat = 4; // A constant to define max samples per beat
+
+
+        void Start()    // Nastaví barvu kvadrantù na transparentní
         {
-            image.color = Color.clear;
+            ClearQuadrantColors();
+
+        // Add onClick listener to the Button component to log AudioClip names
+        GetComponent<Button>().onClick.AddListener(LogAudioClipNames);
+    }
+
+
+    private void LogAudioClipNames()
+    {
+        List<SampleData> beatSamples = GameManager.Instance.Beats[buttonIndex];
+        if (beatSamples.Count > 0)
+        {
+            Debug.Log($"Beat {buttonIndex} contains:");
+            foreach (var sample in beatSamples)
+            {
+                Debug.Log(sample.audioClip.name);
+            }
+        }
+        else
+        {
+            Debug.Log($"Beat {buttonIndex + 1} contains no samples.");
         }
     }
 
@@ -26,61 +45,118 @@ public class m1Button : MonoBehaviour, IDropHandler
 
 
 
-
-
-    public void OnDrop(PointerEventData eventData)    // Pøidá SampleData do beatu, zmìní barvu
-    {
-        GameObject droppedObject = eventData.pointerDrag; // Odkaz na dropnutý objekt
-
-        if (droppedObject != null)
+    public void OnDrop(PointerEventData eventData)
         {
-            AudioClip droppedClip = droppedObject.GetComponent<SoundData>()?.soundClip; // Odkaz na clip dropnutého objektu
-            Color droppedColor = droppedObject.GetComponent<Image>().color;             //          barvu
+            GameObject droppedObject = eventData.pointerDrag;
 
-
-            SampleData sampleData = new SampleData(droppedClip, droppedColor);                                                // Pøidá SampleData do beatu pokud tam již není
-            bool exists = GameManager.Instance.Beats[buttonIndex].Exists(sd => sd.audioClip == droppedClip);
-            if (!exists)
+            if (droppedObject == null)
             {
-                GameManager.Instance.AddSampleDataIfUnique(buttonIndex, sampleData);
+                Debug.LogWarning($"Dropped object was null on button with index {buttonIndex}.");
+                return;
+            }
 
+            SoundData soundData = droppedObject.GetComponent<SoundData>();
+            if (soundData == null)
+            {
+                Debug.LogError($"SoundData component not found on dropped object for button with index {buttonIndex}.");
+                return;
+            }
 
-                UpdateQuadrantAppearance(droppedColor); // Zmìní barvu kvadrantu
-                GameManager.Instance.LogBeatsListContents();
+            AudioClip droppedClip = soundData.soundClip;
+            Image droppedImage = droppedObject.GetComponent<Image>();
+
+            if (droppedClip == null || droppedImage == null)
+            {
+                Debug.LogError($"AudioClip or Image component not found on dropped object for button with index {buttonIndex}.");
+                return;
+            }
+
+            Color droppedColor = droppedImage.color;
+
+            if (GameManager.Instance.Beats[buttonIndex].Count >= MaxSamplesPerBeat)
+            {
+                Debug.LogWarning($"Max samples per beat reached on button with index {buttonIndex}.");
+                return;
+            }
+
+            SampleData newSample = new SampleData(droppedClip, droppedColor);
+            if (!GameManager.Instance.Beats[buttonIndex].Exists(sd => sd.audioClip == droppedClip))
+            {
+                GameManager.Instance.Beats[buttonIndex].Add(newSample);
+                UpdateQuadrantAppearance(droppedColor);
+                GameManager.Instance.LogBeatsListContents(buttonIndex);
             }
             else
             {
-                Debug.Log($"This Sample is already assigned to this beat.");
+                Debug.Log($"This Sample is already assigned to this beat for button with index {buttonIndex}.");
             }
-
-
-
-
         }
-    }
 
 
 
-
-
-
-
-
-    public void ClearQuadrantColors()
-    {
-        foreach (var image in quadrantImages)
+        private void UpdateQuadrantAppearance(Color color)
         {
-            image.color = Color.clear; // Sets the color to transparent
+            ClearQuadrantColors();
+
+
+
+            var beatsCount = GameManager.Instance.Beats[buttonIndex].Count;
+
+
+            if (beatsCount == 1)    // Pokud je Sample 1, zmìní barvy všech kvadrantù na barvu tohoto samplu
+            {
+                foreach (var quadrantImage in quadrantImages)
+                {
+                    quadrantImage.color = color;
+                }
+            }
+            else if (beatsCount == 2)   // Pokud jsou 2, zbarví 2 kvadranty podle 1. samplu, a druhé 2 podle druhého samplu
+            {
+                quadrantImages[0].color = GameManager.Instance.Beats[buttonIndex][0].color;
+                quadrantImages[1].color = GameManager.Instance.Beats[buttonIndex][0].color;
+
+                quadrantImages[2].color = GameManager.Instance.Beats[buttonIndex][1].color;
+                quadrantImages[3].color = GameManager.Instance.Beats[buttonIndex][1].color;
+            }
+            else if (beatsCount == 3)       // Pokud jsou 3, zbarví první 3 kvadranty podle tìch 3 samplù a 4. kvadrantu dá barvu 3. samplu
+            {
+                for (int j = 0; j < beatsCount; j++)
+                {
+                    quadrantImages[j].color = GameManager.Instance.Beats[buttonIndex][j].color;
+                }
+
+                quadrantImages[3].color = GameManager.Instance.Beats[buttonIndex][2].color;
+            }
+            else if (beatsCount > 3)    // Pro více než 3 samply, zbarví každý kvadrant podle každého samplu
+            {
+                for (int j = 0; j < beatsCount && j < quadrantImages.Count; j++)
+                {
+                    quadrantImages[j].color = GameManager.Instance.Beats[buttonIndex][j].color;
+                }
+            }
         }
-    }
 
 
 
-    private void UpdateQuadrantAppearance(Color color)
-    {
-        if (GameManager.Instance.Beats[buttonIndex].Count <= 4)
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void ClearQuadrantColors()
         {
-            quadrantImages[GameManager.Instance.Beats[buttonIndex].Count - 1].color = color;
+            foreach (var image in quadrantImages)
+            {
+                image.color = Color.clear;
+            }
         }
+
     }
-}

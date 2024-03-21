@@ -242,6 +242,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b36626aacd8b1469717134b4c52aa7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  removeButton: {fileID: 0}
+  rowIndex: 0
+  defaultButtonColor: {r: 0, g: 0, b: 0, a: 0}
+  activatedButtons: []
 --- !u!82 &6667582770960858674
 AudioSource:
   m_ObjectHideFlags: 0

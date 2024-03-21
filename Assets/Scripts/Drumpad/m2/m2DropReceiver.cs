@@ -6,22 +6,30 @@ using System.Collections.Generic;
 
 public class m2DropReceiver : MonoBehaviour, IDropHandler
 {
+    public Button removeButton;
+
     public int rowIndex;
-    private AudioSource audioSource;
-    private TextMeshProUGUI buttonText;
-    public Color defaultButtonColor;
+    [SerializeField] private TextMeshProUGUI buttonText;
+
 
     public List<m2Button> activatedButtons = new List<m2Button>();
 
     public SampleData sampleData;
 
-  
 
-    void Awake()    // Vytáhne AudioSource a Text Sample Panelu
+
+
+
+
+
+    void Awake()
+    {         
+        removeButton.onClick.AddListener(RemoveThisRow);
+    }
+
+    public void RemoveThisRow()
     {
-        audioSource = GetComponent<AudioSource>();                      
-        buttonText = GetComponentInChildren<TextMeshProUGUI>();
-
+        GameManager.Instance.RemoveRow(rowIndex);
     }
 
 
@@ -44,10 +52,14 @@ public class m2DropReceiver : MonoBehaviour, IDropHandler
 
 
 
+
+
+
+            GetComponent<Image>().color = panelColor;    // Zmìní barvu Sample Panelu
+            UpdateButtonText(droppedClip?.name);         //       text
+
+
             sampleData = new SampleData(droppedClip, panelColor);   // Založí globální SampleData
-
-
-            
 
 
             foreach (var m2ButtonScript in activatedButtons)    
@@ -60,27 +72,22 @@ public class m2DropReceiver : MonoBehaviour, IDropHandler
                 }
             }
 
-
-
-
-
-
             GameManager.Instance.UpdateM2ButtonsSampleData(rowIndex, sampleData);  // Updatne SampleData všech tlaèítek   
 
 
 
-            GetComponent<Image>().color = panelColor;    // Zmìní barvu Sample Panelu
-            UpdateButtonText(droppedClip?.name);         //       text
+           
         }
     }
 
     private void UpdateButtonText(string newButtonName)
     {
-        if (buttonText != null)
-        {
-            buttonText.text = newButtonName;
-        }
+        buttonText.text = newButtonName;
+        
     }
+
+
+
 
 
 
@@ -92,35 +99,35 @@ public class m2DropReceiver : MonoBehaviour, IDropHandler
 
 
 
-
-
-    public void UpdateSamplePanelUI(SampleData newSampleData, List<int> buttonIndexesForSample)
+    public void SetSampleData(SampleData newSampleData)
     {
-        // Zmìní barvu a  text samplePanelu
-        GetComponent<Image>().color = newSampleData.color;
-        UpdateButtonText(newSampleData.audioClip.name);
+        sampleData = newSampleData;
 
-        foreach (var button in GameManager.Instance.mode2Rows[rowIndex])
-        {
-            m2Button m2ButtonScript = button.GetComponent<m2Button>();
-
-            button.GetComponent<Image>().color = m2ButtonScript.defaultColor;
-            m2ButtonScript.buttonClicked = false;
-        }
-
-        ResetActivatedButtons(buttonIndexesForSample, newSampleData);
-
-
-        GameManager.Instance.UpdateM2ButtonsSampleData(rowIndex, newSampleData);  // Updatne SampleData všech tlaèítek
+        // Update UI colors and texts
+        UpdateSamplePanelUI();
     }
 
 
 
+    public void UpdateSamplePanelUI()
+    {
+        GetComponent<Image>().color = sampleData.color; // Set panel color
+        UpdateButtonText(sampleData.audioClip.name);    // Set panel text
 
 
-    private void ResetActivatedButtons(List<int> buttonIndexesForSample, SampleData newSampleData)
+
+
+
+        ResetActivatedButtons();
+    }
+
+
+    private void ResetActivatedButtons()
     {
         activatedButtons.Clear();
+        GameManager.Instance.UpdateM2ButtonsSampleData(rowIndex, sampleData);
+
+        var buttonIndexesForSample = GameManager.Instance.GetAllButtonIndexesForSample(sampleData);
 
         foreach (int index in buttonIndexesForSample)
         {
@@ -128,13 +135,15 @@ public class m2DropReceiver : MonoBehaviour, IDropHandler
             if (m2buttonScript != null)
             {
                 activatedButtons.Add(m2buttonScript);
-                m2buttonScript.GetComponent<Image>().color = newSampleData.color;
-                m2buttonScript.buttonClicked = true;
+                m2buttonScript.SetButtonState(true, sampleData.color);
+
 
 
                 // You may also need to update buttonScript properties here
             }
         }
+
+        
     }
 
 
@@ -142,12 +151,4 @@ public class m2DropReceiver : MonoBehaviour, IDropHandler
 
 
 
-
-
-
-
-
-
-
-   
 }

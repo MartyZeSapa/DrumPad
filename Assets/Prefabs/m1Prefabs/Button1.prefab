@@ -477,6 +477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb8c6f7ae76b0b642a28cf7805675854, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buttonIndex: 0
   quadrantImages:
   - {fileID: 5579088866796826141}
   - {fileID: 1368438798468443759}
