@@ -26,7 +26,7 @@ public class ColorChanger : MonoBehaviour
     {
         slider.onValueChanged.AddListener(OnSliderChanged);
 
-        hexInputField.onValueChanged.AddListener(OnHexInputField1EndEdit);
+        hexInputField.onEndEdit.AddListener(OnHexInputFieldEndEdit);
     }
 
     private void OnSliderChanged(float value)
@@ -44,7 +44,7 @@ public class ColorChanger : MonoBehaviour
     }
 
 
-    private void OnHexInputField1EndEdit(string hexValue)
+    private void OnHexInputFieldEndEdit(string hexValue)
     {
         
         if (!hexValue.StartsWith("#")) // Zajisti že text v input fieldu zaèíná "#"
@@ -69,6 +69,14 @@ public class ColorChanger : MonoBehaviour
 
             updatingHexField = false;
         }
+        else // If the hex string is not a valid color.
+        {
+            Debug.LogWarning("Incorrect hexadecimal code"); // Log an error message.
+                                                     //  reset the hexInputField to the last valid color
+            hexInputField.text = "#" + ColorUtility.ToHtmlStringRGB(Background.color);
+        }
+
+
     }
 
 }

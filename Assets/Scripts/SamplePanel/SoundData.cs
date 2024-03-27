@@ -5,8 +5,9 @@ using TMPro;
 public class SoundData : MonoBehaviour
 {
     public AudioClip soundClip;
-    private AudioSource audioSource;
+    public int sampleIndex;
 
+    private AudioSource audioSource;
     private TextMeshProUGUI buttonText;
 
     private void Awake()

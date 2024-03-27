@@ -17,14 +17,21 @@ public class DropdownHandler : MonoBehaviour
 
     private void OnDropdownValueChanged(int index)
     {
-        if (index == 0)
+        if (index == 0) // Clear All
+        {
+
+            GameManager.Instance.ClearAllSamplesFromBeats();
+
+            dropdown.SetValueWithoutNotify(-1);
+        }
+
+        if (index == 2) // Saved Loops
         {
 
             dropdown.SetValueWithoutNotify(-1);
         }
 
-
-        if (index == 2)
+        if (index == 2) // Export
         {
 
             dropdown.SetValueWithoutNotify(-1);
