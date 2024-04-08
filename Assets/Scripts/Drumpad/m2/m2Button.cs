@@ -9,18 +9,21 @@ public class M2Button : MonoBehaviour
     public int buttonIndex;
     public bool buttonClicked = false;
 
-    public Color defaultColor = new Color(230, 230, 230);
+    public Color defaultColor = new(230, 230, 230);
 
     public SampleData m2ButtonSampleData;
 
 
     private GameManager gameManager;
+    private NotificationController notificationController;
+
     private List<SampleData> beat;
 
 
     void Start()
     {
         gameManager = GameManager.Instance;
+        notificationController = NotificationController.Instance;
         beat = gameManager.Beats[buttonIndex];
     }
 
@@ -62,7 +65,7 @@ public class M2Button : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"Max samples reached on Beat {buttonIndex + 1}.");
+                notificationController.ShowNotification($"Max samples reached on this beat.");
 
             }
 

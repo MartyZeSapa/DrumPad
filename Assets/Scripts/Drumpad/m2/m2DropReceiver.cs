@@ -20,13 +20,16 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
     [SerializeField] private Button removeButton;
 
 
-    public List<M2Button> activatedButtons = new List<M2Button>();
+    public List<M2Button> activatedButtons = new();
 
     private GameManager gameManager;
+    private NotificationController notificationController;
 
     void Start()
     {
+       
         gameManager = GameManager.Instance;
+        notificationController = NotificationController.Instance;
         removeButton.onClick.AddListener(RemoveThisRow);
     }
 
@@ -51,33 +54,20 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
 
 
     {
-        GameObject droppedObject = eventData.pointerDrag;   // Odkaz na dropnutý objekt
-
-        #region safety check    // Jestli je droppedObject nebo soundData null
-
-        if (droppedObject == null)
-        {
-            Debug.LogError($"Dropped object is null.");
-            return;
-        }
-
-        SoundData soundData = droppedObject.GetComponent<SoundData>();
-        if (soundData == null)
-        {
-            return;
-        }
-        #endregion
+        SoundData soundData = eventData.pointerDrag.GetComponent<SoundData>();
+        if (soundData == null) return; // Proper error handling
 
 
         AudioClip droppedClip = soundData.soundClip;                        // Odkaz na clip dropnutého objektu
         int sampleIndex = soundData.sampleIndex;                            //        sampleIndex
-        Color panelColor = droppedObject.GetComponent<Image>().color;       //          barvu
+        Color panelColor = soundData.GetComponent<Image>().color;       //          barvu
 
 
         #region safety check    // Jestli existuje samplePanel s tímto Samplem
-        if (!IsUniqueSamplePanel(droppedClip))
+
+        if (!gameManager.IsUniqueSamplePanel(droppedClip))
         {
-            Debug.LogWarning("A panel with this sample already exists.");
+            notificationController.ShowNotification("A row with this sample already exists.");
             return;
         }
 
@@ -87,8 +77,8 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
 
 
 
-        GetComponent<Image>().color = panelColor;    // Zmìní barvu Sample Panelu
-        UpdateSamplePanelText(droppedClip?.name);         //       text
+            // Zmìní barvu Sample Panelu
+        UpdateSamplePanelUI(droppedClip.name, panelColor);         //       text
 
 
         sampleData = new SampleData(droppedClip, panelColor, sampleIndex);   // Založí globální SampleData
@@ -100,7 +90,7 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
 
             if (m2ButtonScript.buttonClicked) // Odstraní stará a pøidá nová SampleData do Sublistù Beatù
             {
-                gameManager.ReplaceActivatedBeats(m2ButtonScript.buttonIndex, m2ButtonScript.m2ButtonSampleData, sampleData);
+                gameManager.ReplaceSampleDataInBeat(m2ButtonScript.buttonIndex, m2ButtonScript.m2ButtonSampleData, sampleData);
             }
         }
 
@@ -112,20 +102,12 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
 
     }
 
-    private bool IsUniqueSamplePanel(AudioClip sampleClip)
-    {
-        foreach (var receiver in gameManager.m2DropReceivers)
-        {
-            if (receiver.sampleData != null && receiver.sampleData.audioClip == sampleClip)
-            {
-                return false; // SamplePanel není unikátní
-            }
-        }
-        return true; // SamplePanel je unikátní
-    }
+    
 
-    private void UpdateSamplePanelText(string newButtonName)
+    public void UpdateSamplePanelUI(string newButtonName, Color newColor)
     {
+        GetComponent<Image>().color = newColor;
+
         SamplePanelText.text = newButtonName;
 
     }
@@ -147,8 +129,7 @@ public class M2DropReceiver : MonoBehaviour, IDropHandler
     {
         sampleData = newSampleData;
 
-        GetComponent<Image>().color = sampleData.color; // Zmìní barvu samplePanelu
-        UpdateSamplePanelText(sampleData.audioClip.name);    //       text
+        UpdateSamplePanelUI(sampleData.audioClip.name, sampleData.color);   // Zmìní barvu a text samplePanelu
 
 
 

@@ -10,9 +10,14 @@ public class M1Button : MonoBehaviour, IDropHandler
     public int buttonIndex;
 
     public List<Image> quadrantImages;
+    public List<Image> borderImages;
 
 
     private GameManager gameManager;
+    private NotificationController notificationController;
+
+    private M1Popup m1Popup;
+
     private List<SampleData> beat;
 
     void Start()    // Nastaví barvu kvadrantù na transparentní
@@ -20,10 +25,14 @@ public class M1Button : MonoBehaviour, IDropHandler
         ClearQuadrantColors();
 
         gameManager = GameManager.Instance;
+        notificationController = NotificationController.Instance;
+        m1Popup = M1Popup.Instance;
+
+
         beat = gameManager.Beats[buttonIndex];
 
 
-        GetComponent<Button>().onClick.AddListener(LogBeatsContent);
+        GetComponent<Button>().onClick.AddListener(OnClick);
     }
 
 
@@ -68,12 +77,12 @@ public class M1Button : MonoBehaviour, IDropHandler
 
         if (beat.Count >= 4)
         {
-            Debug.LogWarning($"Max samples reached on Beat {buttonIndex + 1}.");
+            notificationController.ShowNotification($"Max samples reached on this beat.");
             return;
         }
         else if (beat.Exists(sd => sd.sampleIndex == sampleIndex)) // Pokud je Sample v beatu
         {
-            Debug.LogWarning($"This Sample is already assigned to Beat {buttonIndex + 1}.");
+            notificationController.ShowNotification($"This sample is already assigned to this beat.");
             return;
         }
 
@@ -83,7 +92,7 @@ public class M1Button : MonoBehaviour, IDropHandler
 
 
 
-        SampleData newSampleData = new SampleData(droppedClip, droppedColor, sampleIndex);
+        SampleData newSampleData = new(droppedClip, droppedColor, sampleIndex);
 
         gameManager.AddSampleDataToBeat(buttonIndex, newSampleData);
 
@@ -99,11 +108,20 @@ public class M1Button : MonoBehaviour, IDropHandler
 
 
         ClearQuadrantColors();
-
+        foreach (var borderImage in borderImages)
+        {
+            borderImage.gameObject.SetActive(false);
+        }
 
 
         var beatsCount = beat.Count;
 
+
+
+
+
+
+        
 
         if (beatsCount == 1)    // Pokud je Sample 1, zmìní barvy všech kvadrantù na barvu tohoto samplu
         {
@@ -111,6 +129,7 @@ public class M1Button : MonoBehaviour, IDropHandler
             {
                 quadrantImage.color = beat[0].color;
             }
+            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount == 2)   // Pokud jsou 2, zbarví 2 kvadranty podle 1. samplu, a druhé 2 podle druhého samplu
         {
@@ -119,6 +138,11 @@ public class M1Button : MonoBehaviour, IDropHandler
 
             quadrantImages[1].color = beat[1].color;
             quadrantImages[3].color = beat[1].color;
+
+            borderImages[0].gameObject.SetActive(true);
+            borderImages[1].gameObject.SetActive(true);
+
+            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount == 3)       // Pokud jsou 3, zbarví první 3 kvadranty podle tìch 3 samplù a 4. kvadrantu dá barvu 3. samplu
         {
@@ -128,6 +152,12 @@ public class M1Button : MonoBehaviour, IDropHandler
             }
 
             quadrantImages[3].color = beat[2].color;
+
+            borderImages[0].gameObject.SetActive(true);
+
+            borderImages[2].gameObject.SetActive(true);
+
+            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount > 3)    // Pro více než 3 samply, zbarví každý kvadrant podle každého samplu
         {
@@ -135,11 +165,21 @@ public class M1Button : MonoBehaviour, IDropHandler
             {
                 quadrantImages[j].color = beat[j].color;
             }
+
+            foreach (var borderImage in borderImages)
+            {
+                borderImage.gameObject.SetActive(true);
+            }
         }
     }
 
 
 
+
+    public void OnClick()
+    {
+        m1Popup.ShowPopup(buttonIndex, this);
+    }
 
 
 
@@ -156,22 +196,8 @@ public class M1Button : MonoBehaviour, IDropHandler
         }
     }   // Barvy kvadrantù na transparentní
 
-    private void LogBeatsContent()  // DebugLog Samplù v beatu
-    {
 
-        if (beat.Count > 0)
-        {
-            Debug.Log($"");
-            Debug.Log($"Beat {buttonIndex + 1} contains:");
-            foreach (var sample in beat)
-            {
-                Debug.Log(sample.audioClip.name);
-            }
-        }
-        else
-        {
-            Debug.Log($"Beat {buttonIndex + 1} contains no samples.");
-        }
-    }
+
+
 
 }
