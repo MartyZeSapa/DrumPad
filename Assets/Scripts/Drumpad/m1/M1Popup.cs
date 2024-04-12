@@ -26,6 +26,20 @@ public class M1Popup : MonoBehaviour
         HidePopup();
     }
 
+
+    public void HidePopup()
+    {
+        samplePopup.SetActive(false);
+        overlayPanel.SetActive(false);
+    }
+
+
+
+
+
+
+
+
     public void ShowPopup(int buttonIndex, M1Button m1Button)  
     {
         currentBeat = GameManager.Instance.Beats[buttonIndex];   // List samplù
@@ -34,6 +48,8 @@ public class M1Popup : MonoBehaviour
 
         UpdatePopupPanel();
     }
+
+
 
     public void UpdatePopupPanel()  // ClearSamplePanels(), UpdateSamplePanel(), updatne UI 
     {
@@ -69,9 +85,6 @@ public class M1Popup : MonoBehaviour
         }
     }
 
-    public void HidePopup()
-    {
-        samplePopup.SetActive(false);
-        overlayPanel.SetActive(false);
-    }
+
+
 }

@@ -32,8 +32,8 @@ public class M1PopupSample : MonoBehaviour, IDropHandler
     public void UpdateSamplePanel(SampleData sample, int buttonIndex)   // Nastaví SamplePanelu nový SampleData
     {
 
-        sampleData = sample;
-        beatIndex = buttonIndex;
+        this.sampleData = sample;
+        this.beatIndex = buttonIndex;
         textComponent.text = sample.audioClip.name;
         imageComponent.color = sample.color;
         removeSampleButton.gameObject.SetActive(true);
@@ -76,7 +76,7 @@ public class M1PopupSample : MonoBehaviour, IDropHandler
         if (soundData == null) return;
 
         
-        if (GameManager.Instance.Beats[beatIndex].Any(sd => sd.sampleIndex == soundData.sampleIndex))
+        if (gameManager.BeatContainsSample(beatIndex, soundData.sampleIndex))
         {
             notificationController.ShowNotification($"This sample is already assigned to this beat.");
             return;

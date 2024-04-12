@@ -22,7 +22,7 @@ public class M1Button : MonoBehaviour, IDropHandler
 
     void Start()    // Nastaví barvu kvadrantù na transparentní
     {
-        ClearQuadrantColors();
+        
 
         gameManager = GameManager.Instance;
         notificationController = NotificationController.Instance;
@@ -31,8 +31,12 @@ public class M1Button : MonoBehaviour, IDropHandler
 
         beat = gameManager.Beats[buttonIndex];
 
+        ClearQuadrantColors();
 
         GetComponent<Button>().onClick.AddListener(OnClick);
+
+
+
     }
 
 
@@ -60,7 +64,6 @@ public class M1Button : MonoBehaviour, IDropHandler
         SoundData soundData = droppedObject.GetComponent<SoundData>();
         if (soundData == null)
         {
-            Debug.LogError($"SoundData component on droppedObject not found.");
             return;
         }
 
@@ -80,7 +83,7 @@ public class M1Button : MonoBehaviour, IDropHandler
             notificationController.ShowNotification($"Max samples reached on this beat.");
             return;
         }
-        else if (beat.Exists(sd => sd.sampleIndex == sampleIndex)) // Pokud je Sample v beatu
+        else if (gameManager.BeatContainsSample(buttonIndex, sampleIndex)) // Pokud je Sample v beatu
         {
             notificationController.ShowNotification($"This sample is already assigned to this beat.");
             return;
@@ -176,28 +179,23 @@ public class M1Button : MonoBehaviour, IDropHandler
 
 
 
-    public void OnClick()
-    {
-        m1Popup.ShowPopup(buttonIndex, this);
-    }
 
 
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////////
     public void ClearQuadrantColors()
     {
         foreach (var image in quadrantImages)
         {
             image.color = Color.clear;
         }
-    }   // Barvy kvadrantù na transparentní
+    } 
 
 
 
+
+    public void OnClick()
+    {
+        m1Popup.ShowPopup(buttonIndex, this);
+    }
 
 
 }

@@ -93,14 +93,21 @@ public class M2Button : MonoBehaviour
 
     #region Metody volané z gameManager - UpdateMode2UI
 
-    public void ReplaceButtonsSampleData(SampleData newSampleData)
+
+    public void ResetButtonState()
     {
-        m2ButtonSampleData = newSampleData;
         buttonClicked = false;
         GetComponent<Image>().color = defaultColor;
     }
 
-    public void SetActiveButtons(bool clicked, Color newColor)
+
+
+    public void ReplaceButtonsSampleData(SampleData newSampleData)
+    {
+        m2ButtonSampleData = newSampleData;
+    }
+
+    public void SetActiveButton(bool clicked, Color newColor)
     {
         buttonClicked = clicked;
         GetComponent<Image>().color = clicked ? newColor : defaultColor;

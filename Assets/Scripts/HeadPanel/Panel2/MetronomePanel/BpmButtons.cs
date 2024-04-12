@@ -6,7 +6,7 @@ public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     [SerializeField]
     private BpmHandler bpmHandler;
 
-    private bool raiseValue;
+    public bool raiseValue;
 
     private bool isPressed = false;
     private float timeSinceLastChange = 0f;
@@ -40,6 +40,8 @@ public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         else
             bpmHandler.DecrementBpm();
     }
+
+
 
     public void OnPointerDown(PointerEventData eventData)
     {

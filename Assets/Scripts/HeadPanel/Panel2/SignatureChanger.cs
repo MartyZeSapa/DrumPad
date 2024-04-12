@@ -11,19 +11,24 @@ public class SignatureChanger : MonoBehaviour
     private Button sixteenthNoteButton;
 
     private GameManager gameManager;
+    public static AudioPlaybackManager audioPlaybackManager;
 
     void Start()
     {
         // Najde GameManager v instanci scény
         gameManager = GameManager.Instance;
+        audioPlaybackManager = AudioPlaybackManager.Instance;
 
-        fourthNoteButton.onClick.AddListener(() => SetTimeSignature(1));
-        eighthNoteButton.onClick.AddListener(() => SetTimeSignature(2));
-        sixteenthNoteButton.onClick.AddListener(() => SetTimeSignature(4));
+        fourthNoteButton.onClick.AddListener(() => SetTimeSignature(4));
+        eighthNoteButton.onClick.AddListener(() => SetTimeSignature(8));
+        sixteenthNoteButton.onClick.AddListener(() => SetTimeSignature(16));
     }
 
     private void SetTimeSignature(int timeSignature)
     {
         gameManager.SetCurrentTimeSignature(timeSignature);
+        audioPlaybackManager.SetCurrentTimeSignature(timeSignature);
+
+
     }
 }

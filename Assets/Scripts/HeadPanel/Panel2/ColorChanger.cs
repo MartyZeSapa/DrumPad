@@ -15,6 +15,9 @@ public class ColorChanger : MonoBehaviour
     [SerializeField]
     private Image backgroundSliderBackground;
 
+    [SerializeField]
+    private Image m3logo;
+
     private NotificationController notificationController;
 
 
@@ -31,15 +34,18 @@ public class ColorChanger : MonoBehaviour
         hexInputField.onEndEdit.AddListener(OnHexInputFieldEndEdit);
 
         notificationController = NotificationController.Instance;
+
+        backgroundSliderBackground.color = Background.color;
     }
 
     private void OnSliderChanged(float value)
     {
-        backgroundSliderValue = value;
+        //    backgroundSliderValue = value;
         Color newColor = Color.HSVToRGB(value, 1f, 1f);   //(hue, saturation, brightness) 0-1
 
         Background.color = newColor;
         backgroundSliderBackground.color = newColor;
+        m3logo.color = newColor;
 
         notificationController.backgroundColor = newColor;
 
@@ -67,11 +73,12 @@ public class ColorChanger : MonoBehaviour
             float hue = 0f;
             Color.RGBToHSV(newColor, out hue, out _, out _);  // Pøevede z RGB na HSV (hue (0-1), saturation, value) a vytáhne hue komponent a uloží ji do hue promìnné
 
-            backgroundSliderValue = hue; // Nastaví hue jako value slideru
+            //backgroundSliderValue = hue; // Nastaví hue jako value slideru
             slider.value = hue; // Updatne UI slider aby ukazoval aktualní value
 
             Background.color = newColor;
             backgroundSliderBackground.color = newColor;
+            m3logo.color = newColor;
 
             notificationController.backgroundColor = newColor;
 

@@ -1,28 +1,38 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class m3DropReceiver : MonoBehaviour, IDropHandler
+public class M3DropReceiver : MonoBehaviour, IDropHandler
 {
-    private AudioSource audioSource;
-    void Start()
+
+    // Use static to share these arrays among all instances of m3DropReceiver
+    public static AudioSource[] audioSources;
+    public static AudioClip[] audioClips;
+    public static Image[] buttonImages;
+
+    [SerializeField] private int buttonIndex; // Assign this in the inspector to match the button to an index
+
+    private void Awake()
     {
-        if (!TryGetComponent(out audioSource))
+        if (audioSources == null)
         {
-            audioSource = gameObject.AddComponent<AudioSource>();
+            audioSources = new AudioSource[10];
+            audioClips = new AudioClip[10];
+            buttonImages = new Image[10];
         }
 
+        audioSources[buttonIndex] = gameObject.AddComponent<AudioSource>();
+        buttonImages[buttonIndex] = GetComponent<Image>();
     }
+
+
     public void OnDrop(PointerEventData eventData)
     {
-        GameObject droppedObject = eventData.pointerDrag; // Odkazuje na objekt který drag and dropujeme
-        if (droppedObject != null)
+        GameObject droppedObject = eventData.pointerDrag;   // Odkaz na dropnutý objekt
+
+        if (droppedObject != null && droppedObject.GetComponent<SoundData>() != null)
         {
-
-            AudioClip droppedClip = droppedObject.GetComponent<SoundData>()?.soundClip; // Nastaví soundclip na button
-            audioSource.clip = droppedClip;
-            Color droppedColor = droppedObject.GetComponent<Image>().color; // Nastaví barvu tlaèítka na barvu tlaèítka který jsme dropli
-            GetComponent<Image>().color = droppedColor;
-
+            audioClips[buttonIndex] = droppedObject.GetComponent<SoundData>().soundClip;        // Uloží audioclip a zmìní barvu
+            buttonImages[buttonIndex].color = droppedObject.GetComponent<Image>().color;
         }
     }
 }

@@ -159,8 +159,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -12.52}
-  m_SizeDelta: {x: 0.7, y: 25}
+  m_AnchoredPosition: {x: 0, y: -11.9201}
+  m_SizeDelta: {x: 0.7, y: 23.8002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3848854448332430263
 CanvasRenderer:
@@ -419,10 +419,10 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 0
+  m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 25, y: 25}
+  m_CellSize: {x: 24, y: 24}
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
@@ -462,8 +462,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.35}
-  m_SizeDelta: {x: 50, y: 0.7}
+  m_AnchoredPosition: {x: -0.0231, y: -0.35}
+  m_SizeDelta: {x: 47.6465, y: 0.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &643663340455271006
 CanvasRenderer:
@@ -558,8 +558,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 12.279999}
-  m_SizeDelta: {x: 0.7, y: 26}
+  m_AnchoredPosition: {x: 0, y: 11.5862}
+  m_SizeDelta: {x: 0.7, y: 24.6125}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5738479272408836847
 CanvasRenderer:
@@ -711,8 +711,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24.999998, y: -25.000002}
-  m_SizeDelta: {x: 50, y: 50}
+  m_AnchoredPosition: {x: 25.05371, y: -25.000002}
+  m_SizeDelta: {x: 48.6034, y: 48.496}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &651466694628104539
 CanvasRenderer:
@@ -738,7 +738,7 @@ MonoBehaviour:
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -751,7 +751,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 100
+  m_PixelsPerUnitMultiplier: 90
 --- !u!114 &2146419388321602412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -786,6 +786,7 @@ GameObject:
   - component: {fileID: 445773370504446737}
   - component: {fileID: 456627472034621460}
   - component: {fileID: 8953419317924378298}
+  - component: {fileID: 2054271040121799742}
   m_Layer: 5
   m_Name: Button1
   m_TagString: Untagged
@@ -946,3 +947,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowMaskGraphic: 1
+--- !u!114 &2054271040121799742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8755625551074258399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
