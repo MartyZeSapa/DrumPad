@@ -4,19 +4,23 @@ using TMPro;
 
 public class M1Popup : MonoBehaviour
 {
-    public static M1Popup Instance { get; private set; }
+    #region Inicializace
+
+    public static M1Popup Instance;
+    [SerializeField] private GameManager gameManager;
+
     public M1Button m1ButtonScript;
-
-
-    [SerializeField] private GameObject samplePopup;
-    [SerializeField] private TextMeshProUGUI popupText;
-    [SerializeField] private List<GameObject> samplePanels = new();
-    [SerializeField] private GameObject overlayPanel;
-
     private List<SampleData> currentBeat;
     private int currentIndex;
 
-    void Awake()    // Singleton, HidePopup()
+    [SerializeField] private List<M1PopupSample> samplePanelScripts = new();
+
+    [SerializeField] private GameObject samplePopup;
+    [SerializeField] private TextMeshProUGUI popupText;
+    [SerializeField] private GameObject overlayPanel;
+
+
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -26,6 +30,10 @@ public class M1Popup : MonoBehaviour
         HidePopup();
     }
 
+    #endregion
+
+    ////////////////////////////////////////////////
+    
 
     public void HidePopup()
     {
@@ -34,29 +42,23 @@ public class M1Popup : MonoBehaviour
     }
 
 
-
-
-
-
-
-
     public void ShowPopup(int buttonIndex, M1Button m1Button)  
     {
-        currentBeat = GameManager.Instance.Beats[buttonIndex];   // List samplù
-        currentIndex = buttonIndex;     // Index
-        m1ButtonScript = m1Button;      // Uloží script M1Buttonu
+        currentBeat = gameManager.Beats[buttonIndex];
+        currentIndex = buttonIndex;
+        m1ButtonScript = m1Button;
 
         UpdatePopupPanel();
     }
 
 
 
-    public void UpdatePopupPanel()  // ClearSamplePanels(), UpdateSamplePanel(), updatne UI 
+    public void UpdatePopupPanel()
     {
         ClearSamplePanels();
         for (int i = 0; i < 4; i++)
         {
-            var samplePanelScript = samplePanels[i].GetComponent<M1PopupSample>();
+            var samplePanelScript = samplePanelScripts[i];
             samplePanelScript.m1Button = m1ButtonScript;
 
             if (i < currentBeat.Count)
@@ -78,9 +80,8 @@ public class M1Popup : MonoBehaviour
 
     private void ClearSamplePanels()
     {
-        foreach (var samplePanel in samplePanels)
+        foreach (var samplePanelScript in samplePanelScripts)
         {
-            var samplePanelScript = samplePanel.GetComponent<M1PopupSample>();
             samplePanelScript.ClearSamplePanel();
         }
     }

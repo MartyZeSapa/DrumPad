@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class DropdownHandler : MonoBehaviour
 {
+
+    [SerializeField] private GameManager gameManager;
+
     [SerializeField]
     private TMP_Dropdown dropdown;
 
@@ -20,7 +23,7 @@ public class DropdownHandler : MonoBehaviour
         if (index == 0) // Clear All
         {
 
-            GameManager.Instance.ClearAllSamplesFromBeats();
+            gameManager.ClearAllSamplesFromBeats();
 
             dropdown.SetValueWithoutNotify(-1);
         }

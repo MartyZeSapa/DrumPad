@@ -1,36 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AudioPlaybackManager : MonoBehaviour
 {
-    #region  Initialization
-
-
     public static AudioPlaybackManager Instance;
 
-
-    [SerializeField] private AudioSource audioSourcePrefab;
+    [SerializeField] private AudioSourcePool audioSourcePool; // Pool Manager
     [SerializeField] private GameManager gameManager;
 
+    [SerializeField] private MetronomeHandler[] metronomeHandlers;
+    [SerializeField] private Slider volumeSlider; // Reference to the volume slider
+
+    private int currentBeatIndex = 0;
     private int bpm;
     private int currentTimeSignature = 16;
-
-    private AudioSource[] audioSources;
+    int beatCount = 64;
     private Coroutine playbackCoroutine;
-    private bool isPlaying = false;
-
-    void Start()
-    {
-        SetupSingleton();
-        InitializeAudioSources();
-        gameManager = GameManager.Instance;
-    }
+    public bool isPlaying = false;
 
 
-
-    private void SetupSingleton()
+    void Awake()
     {
         if (Instance != null && Instance != this)
         {
@@ -41,38 +32,15 @@ public class AudioPlaybackManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-
-    private void InitializeAudioSources()
+    void Start()
     {
-        audioSources = new AudioSource[64]; // Increasing audio sources to handle more simultaneous samples
-        for (int i = 0; i < audioSources.Length; i++)
+        if (volumeSlider != null)
         {
-            audioSources[i] = Instantiate(audioSourcePrefab, transform);
-            audioSources[i].playOnAwake = false;
-            audioSources[i].loop = false;
+            //volumeSlider.onValueChanged.AddListener(SetVolumeForAllMetronomes);
+            volumeSlider.value = 1.0f; // Default volume to max
         }
     }
 
-    #endregion
-
-
-    public void SetBPM(int newBpm)
-    {
-        // Clamp BPM to be within the allowed range
-        bpm = Mathf.Clamp(newBpm, 40, 420);  // Set the minimum BPM to 40 and maximum to 420
-    }
-
-
-
-    public void SetCurrentTimeSignature(int newTimeSignature)
-    {
-        currentTimeSignature = newTimeSignature;
-    }
-
-
-    //////////////////////////////////////////////////////////
-
-    #region StartPlayback(), PlaybackCouroutine(), PlayBeatSamples()
     public void StartPlayback()
     {
         if (isPlaying) return;
@@ -80,86 +48,114 @@ public class AudioPlaybackManager : MonoBehaviour
         playbackCoroutine = StartCoroutine(PlaybackCoroutine());
     }
 
-
     private IEnumerator PlaybackCoroutine()
     {
-        int beatCount = 64; // Total number of beats
-        int currentBeatIndex = 0; // Current beat index
-        double nextTime = AudioSettings.dspTime; // For more precise timing
+        
+        double nextTime = AudioSettings.dspTime;
 
         while (isPlaying)
         {
+            float delayBetweenBeats = 60f / bpm;
             double currentTime = AudioSettings.dspTime;
-            if(currentTime >= nextTime)
+            if (currentTime >= nextTime)
             {
-                if (ShouldPlayBeat(currentBeatIndex))
+                if (gameManager.ShouldPlayBeat(currentBeatIndex))
                 {
                     PlayBeatSamples(gameManager.Beats[currentBeatIndex]);
-                    nextTime += 60f / bpm; // Calculate next beat time
+                    gameManager.HighlightBeat(currentBeatIndex);
+
+                    PlayMetronome(currentBeatIndex, delayBetweenBeats);
+
+                    nextTime += delayBetweenBeats;
                 }
+
+               
                 currentBeatIndex = (currentBeatIndex + 1) % beatCount;
             }
-            yield return null; // Wait until next frame before checking again
-
-
-
+            yield return null;
         }
     }
+
+
+    private void PlayMetronome(int beatIndex, float delayBetweenBeats)
+    {
+        MetronomeHandler metronomeHandler = null;
+
+        if (beatIndex == 0 || beatIndex == 16 || beatIndex == 32 || beatIndex == 48)
+        {
+            metronomeHandler = metronomeHandlers[0];
+        }
+        else if (beatIndex == 4 || beatIndex == 20 || beatIndex == 36 || beatIndex == 52)
+        {
+            metronomeHandler = metronomeHandlers[1];
+        }
+        else if (beatIndex == 8 || beatIndex == 24 || beatIndex == 40 || beatIndex == 56)
+        {
+            metronomeHandler = metronomeHandlers[2];
+        }
+        else if (beatIndex == 12 || beatIndex == 28 || beatIndex == 44 || beatIndex == 60)
+        {
+            metronomeHandler = metronomeHandlers[3];
+        }
+
+        if (metronomeHandler != null && !metronomeHandler.isReset)
+        {
+            StartCoroutine(FlashMetronomeButton(metronomeHandler, delayBetweenBeats));
+            metronomeHandler.PlayMetronome();
+        }
+    }
+
+
+    private IEnumerator FlashMetronomeButton(MetronomeHandler metronomeHandler, float delayBetweenBeats)
+    {
+        metronomeHandler.HighlightButton();
+        yield return new WaitForSeconds(delayBetweenBeats); // Flash duration
+        metronomeHandler.UnhighlightButton();
+    }
+
+
 
     private void PlayBeatSamples(List<SampleData> samplesForThisBeat)
     {
         foreach (SampleData sampleData in samplesForThisBeat)
         {
-            AudioSource availableSource = audioSources.FirstOrDefault(source => !source.isPlaying);
-            if (availableSource != null)
+            AudioSource src = audioSourcePool.GetSource();
+            if (src != null)
             {
-                availableSource.clip = sampleData.audioClip;
-                availableSource.volume = gameManager.GetSampleVolume(sampleData.audioClip.name);
-                availableSource.Play();
-            }
-            else
-            {
-                Debug.LogWarning("No available audio sources to play sample: " + sampleData.audioClip.name);
+                src.clip = sampleData.audioClip;
+                src.volume = gameManager.GetSampleVolume(sampleData.audioClip.name);
+                src.PlayScheduled(AudioSettings.dspTime);
+                StartCoroutine(ReturnSourceAfterPlaying(src, src.clip.length));
             }
         }
     }
 
-
-
-
-
-    private bool ShouldPlayBeat(int beatIndex)
+    private IEnumerator ReturnSourceAfterPlaying(AudioSource src, float clipLength)
     {
-        // Simplified time signature interpretation
-        return (currentTimeSignature == 16) || // Play every beat for 16/4 time
-               (currentTimeSignature == 8 && (beatIndex % 4 == 0 || beatIndex % 4 == 2)) || // Play beats 0 and 2 for 8/4 time
-               (currentTimeSignature == 4 && beatIndex % 4 == 0); // Play beat 0 for 4/4 time
+        yield return new WaitForSeconds(clipLength);
+        audioSourcePool.ReturnSource(src);
     }
-
-    #endregion
-
-    //////////////////////////////////////////////////////////
-
-    #region StopPlayback(), StopAllAudioSources()
 
     public void StopPlayback()
     {
-        if (!isPlaying) return;
         isPlaying = false;
         if (playbackCoroutine != null)
         {
             StopCoroutine(playbackCoroutine);
             playbackCoroutine = null;
         }
-        StopAllAudioSources();
-    }
-    private void StopAllAudioSources()
-    {
-        foreach (var source in audioSources)
-        {
-            source.Stop();
-        }
+        gameManager.UnhighlightAll();
+        currentBeatIndex = 0;
     }
 
-    #endregion
+    public void SetBPM(int newBpm)
+    {
+        bpm = Mathf.Clamp(newBpm, 40, 420);  // Set the minimum BPM to 40 and maximum to 420
+    }
+
+    public void SetCurrentTimeSignature(int newTimeSignature)
+    {
+        currentTimeSignature = newTimeSignature;
+        gameManager.SetCurrentTimeSignature(newTimeSignature);
+    }
 }

@@ -6,11 +6,10 @@ using UnityEngine.UI;
 public class Panel2Changer : MonoBehaviour
 {
     [SerializeField]
-    private Button MetronomeButton;
+    private Button MetronomeButton, SignatureButton, ColorButton;
+
     [SerializeField]
-    private Button SignatureButton;
-    [SerializeField]
-    private Button ColorButton;
+    private Image MetronomeButtonImage, SignatureButtonImage, ColorButtonImage;
 
     [SerializeField]
     private GameObject signaturePanel;
@@ -26,19 +25,14 @@ public class Panel2Changer : MonoBehaviour
     }
 
 
-    void Update()
-    {
-        
-    }
-
     private void MetronomeButtonClick()
     {
         signaturePanel.SetActive(false);
         colorPanel.SetActive(false);
 
-        MetronomeButton.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
-        SignatureButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
-        ColorButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        MetronomeButtonImage.color = new Color32(140, 140, 140, 255);
+        SignatureButtonImage.color = new Color32(80, 80, 80, 255);
+        ColorButtonImage.color = new Color32(80, 80, 80, 255);
 
     }
 
@@ -47,9 +41,9 @@ public class Panel2Changer : MonoBehaviour
         signaturePanel.SetActive(true);
         colorPanel.SetActive(false);
 
-        MetronomeButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
-        SignatureButton.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
-        ColorButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
+        MetronomeButtonImage.color = new Color32(80, 80, 80, 255);
+        SignatureButtonImage.color = new Color32(140, 140, 140, 255);
+        ColorButtonImage.color = new Color32(80, 80, 80, 255);
     }
 
     private void ColorButtonClick()
@@ -57,8 +51,8 @@ public class Panel2Changer : MonoBehaviour
         colorPanel.SetActive(true);
         signaturePanel.SetActive(false);
 
-        MetronomeButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
-        SignatureButton.GetComponent<Image>().color = new Color32(80, 80, 80, 255);
-        ColorButton.GetComponent<Image>().color = new Color32(140, 140, 140, 255);
+        MetronomeButtonImage.color = new Color32(80, 80, 80, 255);
+        SignatureButtonImage.color = new Color32(80, 80, 80, 255);
+        ColorButtonImage.color = new Color32(140, 140, 140, 255);
     }
 }

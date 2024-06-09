@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class SignatureChanger : MonoBehaviour
 {
     [SerializeField]
-    private Button fourthNoteButton; 
+    private Button fourthNoteButton;
     [SerializeField]
     private Button eighthNoteButton;
     [SerializeField]
@@ -15,7 +15,6 @@ public class SignatureChanger : MonoBehaviour
 
     void Start()
     {
-        // Najde GameManager v instanci scény
         gameManager = GameManager.Instance;
         audioPlaybackManager = AudioPlaybackManager.Instance;
 
@@ -27,8 +26,8 @@ public class SignatureChanger : MonoBehaviour
     private void SetTimeSignature(int timeSignature)
     {
         gameManager.SetCurrentTimeSignature(timeSignature);
+        gameManager.UpdatePlayableBeatsCache();
         audioPlaybackManager.SetCurrentTimeSignature(timeSignature);
-
-
     }
+
 }

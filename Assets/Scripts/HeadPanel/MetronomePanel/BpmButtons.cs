@@ -3,8 +3,7 @@ using UnityEngine.EventSystems;
 
 public class BpmButtons : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField]
-    private BpmHandler bpmHandler;
+    [SerializeField] private BpmHandler bpmHandler;
 
     public bool raiseValue;
 

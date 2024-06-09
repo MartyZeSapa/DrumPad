@@ -24,8 +24,6 @@ public class ColorChanger : MonoBehaviour
 
     private bool updatingHexField = false;
 
-    private float backgroundSliderValue;
-
 
     void Start()
     {
@@ -40,7 +38,6 @@ public class ColorChanger : MonoBehaviour
 
     private void OnSliderChanged(float value)
     {
-        //    backgroundSliderValue = value;
         Color newColor = Color.HSVToRGB(value, 1f, 1f);   //(hue, saturation, brightness) 0-1
 
         Background.color = newColor;
@@ -54,6 +51,13 @@ public class ColorChanger : MonoBehaviour
             hexInputField.text = "#" + ColorUtility.ToHtmlStringRGB(newColor);  // Pøevede newColor z RGB na String
         }
     }
+
+
+
+
+
+
+
 
 
     private void OnHexInputFieldEndEdit(string hexValue)

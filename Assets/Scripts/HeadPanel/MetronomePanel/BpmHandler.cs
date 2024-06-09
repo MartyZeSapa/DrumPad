@@ -13,7 +13,9 @@ public class BpmHandler : MonoBehaviour
 
     private int bpm = 200;
 
-    public static AudioPlaybackManager audioPlaybackManager;
+    [SerializeField] public AudioPlaybackManager audioPlaybackManager;
+    [SerializeField] private GameManager gameManager;
+
     void Start()
     {
 
@@ -25,8 +27,6 @@ public class BpmHandler : MonoBehaviour
         bpmValue.onEndEdit.AddListener(InputFieldValueChanged);
 
         bpmValue.text = slider.value.ToString();
-
-        audioPlaybackManager = AudioPlaybackManager.Instance;
 
         slider.value = bpm;
     }
@@ -77,5 +77,8 @@ public class BpmHandler : MonoBehaviour
         bpmValue.text = bpm.ToString();
 
         audioPlaybackManager.SetBPM(bpm);
+
+        gameManager.currentBpm = bpm;
+
     }
 }

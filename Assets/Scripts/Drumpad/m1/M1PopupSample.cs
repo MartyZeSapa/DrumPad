@@ -6,30 +6,38 @@ using System.Linq;
 
 public class M1PopupSample : MonoBehaviour, IDropHandler
 {
+    #region Inicializace
+
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private NotificationController notificationController;
+
+    public M1Button m1Button;
+    private SampleData sampleData;
+    public int beatIndex;
+    [SerializeField] private Color defaultColor;
+
     [SerializeField] private Image imageComponent;
     [SerializeField] private TextMeshProUGUI textComponent;
     [SerializeField] private Button removeSampleButton;
 
-    [SerializeField] private Color defaultColor;
 
-    private SampleData sampleData;
-    public int beatIndex;
-
-    private GameManager gameManager;
-    private NotificationController notificationController;
-
-    public M1Button m1Button;
 
     void Start()
     {
-        removeSampleButton.onClick.AddListener(RemoveSampleData);
-
         gameManager = GameManager.Instance;
         notificationController = NotificationController.Instance;
+
+        removeSampleButton.onClick.AddListener(RemoveSampleData);
     }
 
+    #endregion
 
-    public void UpdateSamplePanel(SampleData sample, int buttonIndex)   // Nastaví SamplePanelu nový SampleData
+
+    ////////////////////////////////////////////////
+    
+
+
+    public void UpdateSamplePanel(SampleData sample, int buttonIndex)
     {
 
         this.sampleData = sample;
@@ -37,15 +45,9 @@ public class M1PopupSample : MonoBehaviour, IDropHandler
         textComponent.text = sample.audioClip.name;
         imageComponent.color = sample.color;
         removeSampleButton.gameObject.SetActive(true);
-
-        if (m1Button == null)
-        {
-            Debug.LogError("M1Button script is not set.");
-        }
-
     }
 
-    public void ClearSamplePanel()  // Resetuje Panel
+    public void ClearSamplePanel()
     {
         sampleData = null;
         textComponent.text = "";
@@ -53,22 +55,18 @@ public class M1PopupSample : MonoBehaviour, IDropHandler
         removeSampleButton.gameObject.SetActive(false);
     }
 
-    public void RemoveSampleData()  // Odebere SampleData z Beats, resetuje se, Updatne UI M1Buttonu a PopupPanelu
+    public void RemoveSampleData()
     {
-        GameManager.Instance.RemoveSampleDataFromBeat(beatIndex, sampleData);
+        gameManager.RemoveSampleDataFromBeat(beatIndex, sampleData);
         ClearSamplePanel();
 
         if (m1Button != null)
         {
             m1Button.UpdateQuadrantAppearance();
         }
-        else
-        {
-            Debug.LogError("M1Button is null when trying to update quadrant appearance.");
-        }
     }
 
-    public void OnDrop(PointerEventData eventData)  // Nastaví nebo nahradí SampleData na daném Beatu, Updatje UI M1PopupPanelu a M1Buttonu
+    public void OnDrop(PointerEventData eventData)
     {
 
         #region safety check    null, uniqueness
@@ -83,7 +81,7 @@ public class M1PopupSample : MonoBehaviour, IDropHandler
         }
         #endregion
 
-        SampleData newSampleData = new(soundData.soundClip, soundData.GetComponent<Image>().color, soundData.sampleIndex);
+        SampleData newSampleData = new(soundData.soundClip, soundData.sampleIndex, soundData.GetComponent<Image>().color);
 
         if (sampleData != null)
         {

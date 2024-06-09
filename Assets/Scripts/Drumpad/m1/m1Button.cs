@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -5,25 +6,34 @@ using UnityEngine.UI;
 
 public class M1Button : MonoBehaviour, IDropHandler
 {
+    #region Inicializace
 
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private NotificationController notificationController;
+    [SerializeField] private M1Popup m1Popup;
 
     public int buttonIndex;
-
-    public List<Image> quadrantImages;
-    public List<Image> borderImages;
-
-
-    private GameManager gameManager;
-    private NotificationController notificationController;
-
-    private M1Popup m1Popup;
-
     private List<SampleData> beat;
 
-    void Start()    // Nastaví barvu kvadrantù na transparentní
-    {
-        
 
+
+    public Image[] quadrantImages;
+
+    [SerializeField] private Color defaultColor;
+    [SerializeField] private Color inactiveHighlightColor;
+
+
+
+    [SerializeField] private Image[] borderImages;
+    [SerializeField] private Image edgeBorder;
+
+    [SerializeField] private Color borderColor;
+    [SerializeField] private Color borderHighlightColor;
+
+
+
+    void Start()
+    {
         gameManager = GameManager.Instance;
         notificationController = NotificationController.Instance;
         m1Popup = M1Popup.Instance;
@@ -34,74 +44,72 @@ public class M1Button : MonoBehaviour, IDropHandler
         ClearQuadrantColors();
 
         GetComponent<Button>().onClick.AddListener(OnClick);
+    }
+
+    #endregion
+
+    ////////////////////////////////////////////////
+
+
+    #region Button Highlight
+    public void Highlight()
+    {
+        if (isActiveAndEnabled == false)
+        {
+            return;
+        }
 
 
 
+        if (beat.Count == 0)
+        {
+            foreach (var quadrantImage in quadrantImages)
+            {
+                HighlightColor(quadrantImage, inactiveHighlightColor);
+            }
+        }
+        else
+        {
+
+            foreach (var quadrantImage in quadrantImages)
+            {
+                Color quadrantHighlightColor = CalculateActiveHighlightColor(quadrantImage);
+
+                HighlightColor(quadrantImage, quadrantHighlightColor);
+            }
+        }
     }
 
 
-
-
-
-
-
-
-
-
-
-    public void OnDrop(PointerEventData eventData)
+    private Color CalculateActiveHighlightColor(Image quadrantImage)
     {
-        GameObject droppedObject = eventData.pointerDrag;   // Odkaz na dropntý objekt
+        // Neon colors are fully saturated and very bright, so we max out these values.
+        float h, s, v;
+        Color.RGBToHSV(quadrantImage.color, out h, out s, out v); // Convert RGB to HSV
+        s = 1.0f; // Max out saturation for neon effect
+        v = 1.0f; // Max out brightness for neon effect
+        return Color.HSVToRGB(h, s, v, false); // Convert back to RGB with no HDR
+    }
+
+    private void HighlightColor(Image quadrantImage, Color highlightColor)
+    {
+        quadrantImage.color = highlightColor;
+
+        edgeBorder.color = borderHighlightColor;
+    }
 
 
-        #region safety check    // Jestli je droppedObject nebo soundData null
-        if (droppedObject == null)
-        {
-            Debug.LogError($"Dropped object is null.");
-            return;
-        }
-
-        SoundData soundData = droppedObject.GetComponent<SoundData>();
-        if (soundData == null)
-        {
-            return;
-        }
-
-
-        #endregion
-
-
-        AudioClip droppedClip = soundData.soundClip;                     // Odkaz na clip dropnutého objektu
-        int sampleIndex = soundData.sampleIndex;                         //        sampleIndex
-        Color droppedColor = droppedObject.GetComponent<Image>().color;  //          barvu
-
-        #region safety check   // Max poèet samplù na beat, Jestli Sample již v Beatu je
-
-
-        if (beat.Count >= 4)
-        {
-            notificationController.ShowNotification($"Max samples reached on this beat.");
-            return;
-        }
-        else if (gameManager.BeatContainsSample(buttonIndex, sampleIndex)) // Pokud je Sample v beatu
-        {
-            notificationController.ShowNotification($"This sample is already assigned to this beat.");
-            return;
-        }
-
-        #endregion
-
-
-
-
-
-        SampleData newSampleData = new(droppedClip, droppedColor, sampleIndex);
-
-        gameManager.AddSampleDataToBeat(buttonIndex, newSampleData);
-
+    public void Unhighlight()
+    {
         UpdateQuadrantAppearance();
 
+        edgeBorder.color = borderColor;
     }
+
+    #endregion
+
+
+    ////////////////////////////////////////////////
 
 
 
@@ -123,16 +131,12 @@ public class M1Button : MonoBehaviour, IDropHandler
 
 
 
-
-        
-
         if (beatsCount == 1)    // Pokud je Sample 1, zmìní barvy všech kvadrantù na barvu tohoto samplu
         {
             foreach (var quadrantImage in quadrantImages)
             {
                 quadrantImage.color = beat[0].color;
             }
-            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount == 2)   // Pokud jsou 2, zbarví 2 kvadranty podle 1. samplu, a druhé 2 podle druhého samplu
         {
@@ -144,8 +148,6 @@ public class M1Button : MonoBehaviour, IDropHandler
 
             borderImages[0].gameObject.SetActive(true);
             borderImages[1].gameObject.SetActive(true);
-
-            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount == 3)       // Pokud jsou 3, zbarví první 3 kvadranty podle tìch 3 samplù a 4. kvadrantu dá barvu 3. samplu
         {
@@ -159,12 +161,10 @@ public class M1Button : MonoBehaviour, IDropHandler
             borderImages[0].gameObject.SetActive(true);
 
             borderImages[2].gameObject.SetActive(true);
-
-            borderImages[3].gameObject.SetActive(true);
         }
         else if (beatsCount > 3)    // Pro více než 3 samply, zbarví každý kvadrant podle každého samplu
         {
-            for (int j = 0; j < beatsCount && j < quadrantImages.Count; j++)
+            for (int j = 0; j < beatsCount && j < 4; j++)
             {
                 quadrantImages[j].color = beat[j].color;
             }
@@ -177,6 +177,40 @@ public class M1Button : MonoBehaviour, IDropHandler
     }
 
 
+    public void OnDrop(PointerEventData eventData)
+    {
+        SoundData soundData = eventData.pointerDrag.GetComponent<SoundData>();
+
+
+        #region safety check    null, IsUnique
+
+        if (soundData == null)
+        {
+            Debug.LogError($"SoundData is null.");
+            return;
+        }
+
+
+        if (beat.Count >= 4)
+        {
+            notificationController.ShowNotification($"Max samples reached on this beat.");
+            return;
+        }
+        else if (gameManager.BeatContainsSample(buttonIndex, soundData.sampleIndex))
+        {
+            notificationController.ShowNotification($"This sample is already assigned to this beat.");
+            return;
+        }
+
+        #endregion
+
+
+        SampleData newSampleData = new(soundData.soundClip, soundData.sampleIndex, soundData.GetComponent<Image>().color);
+
+        gameManager.AddSampleDataToBeat(buttonIndex, newSampleData);
+
+        UpdateQuadrantAppearance();
+    }
 
 
 
@@ -185,9 +219,10 @@ public class M1Button : MonoBehaviour, IDropHandler
     {
         foreach (var image in quadrantImages)
         {
-            image.color = Color.clear;
+            image.color = defaultColor;
         }
-    } 
+    }
+
 
 
 

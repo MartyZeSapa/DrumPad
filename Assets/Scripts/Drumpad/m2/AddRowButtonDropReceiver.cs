@@ -8,36 +8,27 @@ public class AddRowButtonDropReceiver : MonoBehaviour, IDropHandler
 {
 
 
-    private GameManager gameManager;
-    private NotificationController notificationController;
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] private NotificationController notificationController;
 
-    void Start()
+    public List<M2RowHandler> m2DropReceivers;
+
+
+    void Awake()
     {
-        gameManager = GameManager.Instance;
-        notificationController = NotificationController.Instance;
+        m2DropReceivers = gameManager.m2RowHandlers;
     }
 
+    ////////////////////////////////////////////////
 
 
-
-
-
-    public void OnDrop(PointerEventData eventData)  // Zmìní barvu a text Sample Panelu
-                                                    // zmìní SampleData všech m2Buttons
-
-
+    public void OnDrop(PointerEventData eventData)
     {
-        GameObject droppedObject = eventData.pointerDrag;   // Odkaz na dropnutý objekt
+        SoundData soundData = eventData.pointerDrag.GetComponent<SoundData>();
 
-        #region safety check    // Jestli je droppedObject nebo soundData null
+        #region safety check    // null
 
-        if (droppedObject == null)
-        {
-            Debug.LogError($"Dropped object is null.");
-            return;
-        }
 
-        SoundData soundData = droppedObject.GetComponent<SoundData>();
         if (soundData == null)
         {
             return;
@@ -45,14 +36,9 @@ public class AddRowButtonDropReceiver : MonoBehaviour, IDropHandler
         #endregion
 
 
-        AudioClip droppedClip = soundData.soundClip;                        // Odkaz na clip dropnutého objektu
-        int sampleIndex = soundData.sampleIndex;                            //        sampleIndex
-        Color panelColor = droppedObject.GetComponent<Image>().color;       //          barvu
-
-
         #region safety check    // Jestli existuje samplePanel s tímto Samplem
 
-        if (!gameManager.IsUniqueSamplePanel(droppedClip))
+        if (!gameManager.IsUniqueSamplePanel(soundData.soundClip))
         {
             notificationController.ShowNotification("A row with this sample already exists.");
             return;
@@ -61,22 +47,19 @@ public class AddRowButtonDropReceiver : MonoBehaviour, IDropHandler
         #endregion
 
 
+
+
         gameManager.AddNewM2Row();
 
 
+        var m2DropReceiver = m2DropReceivers[^1]; // ^1 je stejné jako gameManager.m2DropReceiver.Count - 1
 
+        m2DropReceiver.sampleData = new SampleData(soundData.soundClip, soundData.sampleIndex, soundData.GetComponent<Image>().color);
 
-        var m2DropReceiver = gameManager.m2DropReceivers[^1]; // ^1 je stejné jako gameManager.m2DropReceiver.Count - 1
+        m2DropReceiver.UpdateSamplePanelUI();
 
+        
 
-
-        m2DropReceiver.UpdateSamplePanelUI(droppedClip.name, panelColor);         // Zmìní barvu a text Sample Panelu
-
-        m2DropReceiver.sampleData = new SampleData(droppedClip, panelColor, sampleIndex);   // Založí globální SampleData
-
-        gameManager.ReplaceM2ButtonSampleData(m2DropReceiver.rowIndex, m2DropReceiver.sampleData);  // Updatne SampleData všech tlaèítek   
-
-
-
+        gameManager.ResetM2ButtonsAndReplaceSampleData(m2DropReceiver.rowIndex, m2DropReceiver.sampleData); 
     }
 }

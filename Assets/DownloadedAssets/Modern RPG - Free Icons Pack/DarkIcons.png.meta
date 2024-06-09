@@ -1256,6 +1256,7 @@ TextureImporter:
     secondaryTextures: []
     nameFileIdTable:
       DarkIcons_19: 1348368345
+      Cross_Dark: -1872677635
       Camera_Dark: 715841917
       DarkIcons_41: -1155893151
       DarkIcons_26: 1200243267
@@ -1263,7 +1264,6 @@ TextureImporter:
       Compass_Dark: -240298928
       Coin_Dark: -461919733
       Question02_Dark: 1384835824
-      DarkIcons_62: -2144632988
       Shop_Dark: -897707841
       DarkIcons_42: -1185165823
       Circles_Dark: -650786412
@@ -1289,9 +1289,9 @@ TextureImporter:
       DarkIcons_9: 1471670505
       Gears_Dark: 473153993
       Shield_Dark: -604943165
-      DarkIcons_76: 853619579
       Potion02_Dark: 752574547
       Down_Dark: 2020029850
+      DarkIcons_76: 853619579
       DarkIcons_51: -803333649
       Heart01_Dark: -690369022
       DarkIcons_45: 1634763759
@@ -1325,16 +1325,16 @@ TextureImporter:
       Key_Dark: -576006967
       Padlok01_Dark: -358594112
       DarkIcons_63: -2120126226
-      MusicNote02_Dark: 1929031120
-      ToggleOn_Dark: -155605750
+      DarkIcons_35: 164460120
+      DarkIcons_62: -2144632988
       Gear01_Dark: 950931698
-      DarkIcons_64: 46651281
+      MusicNote02_Dark: 1929031120
       Medal_Dark: 1835692648
+      ToggleOn_Dark: -155605750
       DarkIcons_40: 1858793173
       Camera02_Dark: -294549838
-      Cross_Dark: -1872677635
       DarkIcons_55: 854539409
-      DarkIcons_35: 164460120
+      DarkIcons_64: 46651281
       Play_Dark: 1915791974
   spritePackingTag: 
   pSDRemoveMatte: 0

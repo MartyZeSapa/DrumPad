@@ -7,39 +7,70 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public bool[] playableBeats;  // Cache for playable beats
 
-    #region Inicializace
+    #region Playback Inicializace
+
+    [SerializeField] private AudioPlaybackManager audioPlaybackManager;
 
     public Dictionary<string, float> sampleVolumes = new Dictionary<string, float>();
 
-    [SerializeField] private AudioPlaybackManager audioPlaybackManager;
     private bool isPlaying = false;
     public int currentTimeSignature; //  default 16 v inspectoru
+    public int currentBpm;
+
+
+    [SerializeField] private Image[] m1RowBorders = new Image[4];
+
+    public int lastHighlightedBeatIndex = -1;
+    public int lastHighlightedSectionIndex = -1;
+
+    public int currentSectionIndex;
+    public int currentBeatIndex;
 
 
     [SerializeField] private Button playButton;
+    [SerializeField] private Image playButtonImage;
     [SerializeField] private Image iconImage;
+
     [SerializeField] private Sprite playSprite, pauseSprite;
     [SerializeField] private Color playColor = Color.green, pauseColor = Color.yellow;
 
+    #endregion
 
+    #region Inicializace
 
-    [SerializeField] private GameObject mode1, m2RowPrefab, m2RowContainer;
+    public List<SampleData>[] Beats = new List<SampleData>[64];
+
+    [SerializeField] public GameObject mode1, mode2;
+    [SerializeField] private GameObject m2RowPrefab, m2RowContainer;
     [SerializeField] private Button addRowButton;
 
     public Button[] m1Buttons = new Button[64];
-    public List<List<Button>> mode2Rows = new List<List<Button>>();
-    public List<M2DropReceiver> m2DropReceivers = new();
-    public List<List<SampleData>> Beats = new List<List<SampleData>>(64);
+    public M1Button[] m1ButtonScripts = new M1Button[64];
+
+
+    public List<Button[]> m2RowsButtons = new List<Button[]>();
+    public List<M2Button[]> m2RowsButtonScripts = new List<M2Button[]>();
+
+    public List<M2RowHandler> m2RowHandlers = new();
+
+
+
 
 
     void Awake()
     {
         SetupSingleton();
-        playButton.onClick.AddListener(TogglePlay);
 
         InitializeBeatsList();
         SetM1ButtonIndexes();
+
+        playButton.onClick.AddListener(TogglePlay);
+        ClearAllSectionHighlights();
+
+        playableBeats = new bool[64];  // Assuming 64 beats as the maximum
+        SetCurrentTimeSignature(16);  // Default time signature setup
     }
 
     private void SetupSingleton()
@@ -53,24 +84,20 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-
-
     private void InitializeBeatsList()
     {
-        for (int i = 0; i < 64; i++)
+        for (int i = 0; i < Beats.Length; i++)
         {
-            Beats.Add(new List<SampleData>());
+            Beats[i] = new List<SampleData>();
         }
     }
-
-
 
     private void SetM1ButtonIndexes()
     {
 
-        for (int i = 0; i < m1Buttons.Length; i++)
+        for (int i = 0; i < 64; i++)
         {
-            M1Button m1ButtonScript = m1Buttons[i].GetComponent<M1Button>();
+            M1Button m1ButtonScript = m1ButtonScripts[i];
             if (m1ButtonScript != null)
             {
                 m1ButtonScript.buttonIndex = i;
@@ -78,17 +105,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    #endregion
 
+    #endregion
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
-
     #region Playback
+
+
+
     public void TogglePlay()
     {
         isPlaying = !isPlaying; // Toggle the playing state
@@ -97,14 +125,14 @@ public class GameManager : MonoBehaviour
         {
             audioPlaybackManager.StartPlayback();
 
-            playButton.GetComponent<Image>().color = pauseColor;
+            playButtonImage.color = pauseColor;
             iconImage.sprite = pauseSprite;
         }
         else
         {
             audioPlaybackManager.StopPlayback();
 
-            playButton.GetComponent<Image>().color = playColor;
+            playButtonImage.color = playColor;
             iconImage.sprite = playSprite;
         }
     }
@@ -112,6 +140,8 @@ public class GameManager : MonoBehaviour
 
 
 
+
+    #region SetSampleVolume(), GetSampleVolume()
     public void SetSampleVolume(string sampleName, float volume)
     {
         if (sampleVolumes.ContainsKey(sampleName))
@@ -133,26 +163,149 @@ public class GameManager : MonoBehaviour
         return 0.5f; // Default volume if not set
     }
 
+    #endregion
+
+
+    #region Highlighting
+
+
+    public void HighlightBeat(int beatIndex)
+    {
+        if (beatIndex < 0 || beatIndex >= 64) return;
+
+        currentBeatIndex = beatIndex;
+        currentSectionIndex = currentBeatIndex / 16;
+
+        if (mode2.activeInHierarchy)
+        {
+            HighlightMode2();
+        }
+        else if (mode1.activeInHierarchy)
+        {
+            HighlightMode1();
+        }
+
+        lastHighlightedBeatIndex = currentBeatIndex;
+    }
+
+    private void HighlightMode2()
+    {
+        if (currentSectionIndex != lastHighlightedSectionIndex)
+        {
+            foreach (var rowHandler in m2RowHandlers)
+            {
+                rowHandler.HighlightSection(currentSectionIndex);
+            }
+            lastHighlightedSectionIndex = currentSectionIndex;
+        }
+
+        foreach (var rowButtons in m2RowsButtonScripts)
+        {
+            if (lastHighlightedBeatIndex != -1)
+            {
+                rowButtons[lastHighlightedBeatIndex]?.Unhighlight();
+            }
+            rowButtons[currentBeatIndex]?.Highlight();
+        }
+    }
+
+    private void HighlightMode1()
+    {
+        if (currentSectionIndex != lastHighlightedSectionIndex)
+        {
+            UnhighlightAllM1Sections();
+            HighlightM1Section(currentSectionIndex);
+            lastHighlightedSectionIndex = currentSectionIndex;
+        }
+
+        if (lastHighlightedBeatIndex != -1)
+        {
+            m1ButtonScripts[lastHighlightedBeatIndex]?.Unhighlight();
+        }
+        m1ButtonScripts[currentBeatIndex]?.Highlight();
+    }
 
 
 
 
-    public void SetCurrentTimeSignature(int timeSignature)
+    public void HighlightM1Section(int sectionIndex)
     {
 
+        m1RowBorders[sectionIndex].enabled = true;
+    }
+
+
+
+    #region Clear Highlights
+
+    public void UnhighlightAllM1Sections()
+    {
+        foreach (var rowBorder in m1RowBorders)
+        {
+            rowBorder.enabled = false;
+        }
+    }
+
+    public void UnhighlightAll()
+    {
+        #region Unhighlight all buttons
+
+        foreach (var rowButtons in m2RowsButtonScripts)
+        {
+            rowButtons[lastHighlightedBeatIndex]?.Unhighlight();
+        }
+        m1ButtonScripts[lastHighlightedBeatIndex]?.Unhighlight();
+
+        #endregion
+
+        ClearAllSectionHighlights();
+
+        lastHighlightedSectionIndex = -1;
+        lastHighlightedBeatIndex = -1; // Reset the last highlighted index after unhighlighting
+    }
+    public void ClearAllSectionHighlights()
+    {
+        UnhighlightAllM1Sections();
+
+        
+        foreach (M2RowHandler rowHandler in m2RowHandlers)
+        {
+            ClearM2SectionHighlights(rowHandler);
+            
+        }
+
+    }
+
+    public void ClearM2SectionHighlights(M2RowHandler rowHandler)
+    {
+        foreach (Image sectionBorder in rowHandler.m2SectionBorders)
+        {
+            sectionBorder.enabled = false;
+        }
+    }
+
+    #endregion
+
+
+    #endregion
+
+
+
+
+    #region SetCurrentTimeSignature(), UpdateButtonActiveState()
+    public void SetCurrentTimeSignature(int timeSignature)
+    {
         currentTimeSignature = timeSignature;
+        UpdatePlayableBeatsCache();
 
-
-
-        foreach (Button button in m1Buttons)
+        foreach (var button in m1Buttons)
         {
             UpdateButtonActiveState(button);
         }
 
-
-        foreach (var row in mode2Rows)
+        foreach (var row in m2RowsButtons)
         {
-            foreach (Button button in row)
+            foreach (var button in row)
             {
                 UpdateButtonActiveState(button);
             }
@@ -160,6 +313,25 @@ public class GameManager : MonoBehaviour
     }
 
 
+
+    public void UpdatePlayableBeatsCache()
+    {
+        for (int i = 0; i < 64; i++)
+        {
+            playableBeats[i] = ShouldPlayBeat(i);
+        }
+    }
+
+    public bool ShouldPlayBeat(int beatIndex)
+    {
+        switch (currentTimeSignature)
+        {
+            case 16: return true;
+            case 8: return beatIndex % 2 == 0;
+            case 4: return beatIndex % 4 == 0;
+            default: return false;
+        }
+    }
     private void UpdateButtonActiveState(Button button)
     {
         if (button != null)
@@ -172,9 +344,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+
     #endregion
 
-
+    #endregion
 
 
 
@@ -185,7 +359,10 @@ public class GameManager : MonoBehaviour
     #region UpdateUI
     public void ClearAllSamplesFromBeats()
     {
-        Beats.ForEach(sublist => sublist.Clear());
+        foreach (var beatList in Beats)
+        {
+            beatList.Clear();
+        }
 
 
         UpdateUI();
@@ -197,14 +374,16 @@ public class GameManager : MonoBehaviour
         UpdateMode2UI();
     }
 
-    public void UpdateMode1UI() // Zmìna barev kvadrantù
+
+
+
+    public void UpdateMode1UI()
     {
-        foreach (Button button in m1Buttons)
+        foreach (M1Button m1ButtonScript in m1ButtonScripts)
         {
-            m1Buttons.ToList().ForEach(button => button.GetComponent<M1Button>().UpdateQuadrantAppearance());
+            m1ButtonScript.UpdateQuadrantAppearance();
         }
     }
-
 
 
 
@@ -217,7 +396,7 @@ public class GameManager : MonoBehaviour
         SortedSet<SampleData> uniqueSamples = IDUniqueSamplesInBeats();   // Seøadí všechny uniqueSamples podle sampleIndexù
 
 
-        AdjustMode2RowsToMatchSamples(uniqueSamples);    // Pøidá každému receiveru jeden z uniqueSamplù
+        AdjustMode2RowsToMatchSamples(uniqueSamples);
 
         UpdateRowsWithSamples(uniqueSamples);
     }
@@ -226,7 +405,7 @@ public class GameManager : MonoBehaviour
 
     #region IDUniqueSamplesInBeats(), AdjustMode2RowsToMatchSamples(),  UpdateRowsWithSamples()
     private SortedSet<SampleData> IDUniqueSamplesInBeats()
-    {                     
+    {
         SortedSet<SampleData> uniqueSamples = new SortedSet<SampleData>(new SampleDataComparer());
         foreach (List<SampleData> beat in Beats)
         {
@@ -238,22 +417,17 @@ public class GameManager : MonoBehaviour
         return uniqueSamples;
     }
 
-
-
-
-
     private void AdjustMode2RowsToMatchSamples(SortedSet<SampleData> uniqueSamples)
     {
-        while (mode2Rows.Count < uniqueSamples.Count)       // Pokud je ménì øad než uniqueSamplù
+        while (m2RowsButtons.Count < uniqueSamples.Count)
         {
             AddNewM2Row();
         }
 
 
-        // Remove excess rows if any
-        while (mode2Rows.Count > uniqueSamples.Count)
+        while (m2RowsButtons.Count > uniqueSamples.Count)
         {
-            RemoveRow(mode2Rows.Count - 1);
+            RemoveRow(m2RowsButtons.Count - 1);
         }
     }
 
@@ -262,123 +436,107 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < uniqueSamples.Count; i++)
         {
-            m2DropReceivers[i].UpdateSamplePanel(uniqueSamples.ElementAt(i));
+            m2RowHandlers[i].UpdateSamplePanel(uniqueSamples.ElementAt(i));
         }
     }
 
     #endregion
-
-
 
 
 
 
 
     #region AddNewM2Row(), InitializeM2Row(), UpdateAddRowButtonPosition(),    RemoveRow()
-    public void AddNewM2Row() // Založí nový prefab m2 øady
+    public void AddNewM2Row()
     {
         GameObject newRow = Instantiate(m2RowPrefab, m2RowContainer.transform);
-        InitializeM2Row(newRow);
+
+        var rowHandler = newRow.GetComponentInChildren<M2RowHandler>();
+        ClearM2SectionHighlights(rowHandler);
+
+        if (audioPlaybackManager.isPlaying == true)
+        {
+            rowHandler.m2SectionBorders[currentSectionIndex].enabled = true;
+        }
+
+        InitializeM2Row(newRow, rowHandler);
 
 
-        addRowButton.transform.SetAsLastSibling(); // Updatne pozici addRowButton
+        
 
 
-        foreach (Button button in mode2Rows[^1])   // Aktivuje tlaèítka podle currentTimeSignature
+        addRowButton.transform.SetAsLastSibling();
+
+
+        foreach (Button button in m2RowsButtons[^1])
         {
             UpdateButtonActiveState(button);
         }
     }
-    // Zavolat pokaždé co vytvoøíme novou øadu pro M2
-    public void InitializeM2Row(GameObject rowGameObject)   // Dá m2DropReciever scriptu nový index, Založí nový list a vyplní ho M2 tlaèítky a pøidá list do listu M2 øad
-    {                                                       // Nastaví m2Button Scriptu Index a zajistí zmìnu pøi stisku tlaèítka*
+
+    public void InitializeM2Row(GameObject rowGameObject, M2RowHandler rowHandler)
+    {
+
+        
+        rowHandler.rowIndex = m2RowsButtons.Count;
+        m2RowHandlers.Add(rowHandler);
+
+       
 
 
-
-        var dropReceiver = rowGameObject.GetComponentInChildren<M2DropReceiver>();      // Vytáhne dropReceiver
-        dropReceiver.rowIndex = mode2Rows.Count; // Nastaví rowIndex m2DropRecieveru
-
-        m2DropReceivers.Add(dropReceiver);  // Pøidá dropReciever do listu
+        Button[] rowButtons = rowHandler.Buttons;
+        M2Button[] rowButtonScripts = rowHandler.ButtonScripts;
 
 
-
-
-
-
-        List<Button> rowButtons = new();   // Založí list tlaèítek pro tuto øadu
-
-        int buttonIndex = 0;
-        Transform beatPanel = rowGameObject.transform.Find("Beat Panel");
-
-        for (int sec = 1; sec <= 4; sec++)
+        for (int buttonIndex = 0; buttonIndex < 64; buttonIndex++)
         {
-            Transform sectionPanel = beatPanel.Find("Section" + sec);
-            if (sectionPanel == null) continue;
+            M2Button m2ButtonScript = rowButtonScripts[buttonIndex];
+            m2ButtonScript.buttonIndex = buttonIndex;
 
-            for (int bar = 1; bar <= 4; bar++)
+            var button = rowButtons[buttonIndex];
+            button.onClick.AddListener(() =>
             {
-                Transform barPanel = sectionPanel.Find("Bar" + bar);
-                if (barPanel == null) continue;
+                m2ButtonScript.OnClick(rowHandler);
 
-                for (int btn = 1; btn <= 4; btn++)
-                {
-                    Button button = barPanel.GetChild(btn - 1).GetComponent<Button>();
-                    if (button != null)
-                    {
+            });
 
-
-
-
-
-
-
-                        M2Button m2ButtonScript = button.GetComponent<M2Button>();   // Vytáhne m2Button script aktálního tlaèítka a nastaví mu Index
-                        m2ButtonScript.buttonIndex = buttonIndex;
-
-                        button.onClick.AddListener(() =>
-                        {          // Zajistí zmìnu pøi stisku tlaèítka
-                            m2ButtonScript.OnClick(dropReceiver);
-
-                        });
-
-
-                        rowButtons.Add(button); // Pøidá tlaèítko do listu
-                        buttonIndex += 1;
-                    }
-                }
-            }
         }
 
 
-
-        mode2Rows.Add(rowButtons); // Pøidá list tlaèítek do listu M2 øad
+        m2RowsButtons.Add(rowButtons);
+        m2RowsButtonScripts.Add(rowButtonScripts);
     }
 
-    
+
 
 
 
 
     public void RemoveRow(int rowIndex)
     {
-        if (rowIndex < 0 || rowIndex >= m2DropReceivers.Count) return; // Safety Check
+        if (rowIndex < 0 || rowIndex >= m2RowHandlers.Count)
+            return;
 
 
 
-        SampleData sampleToRemove = m2DropReceivers[rowIndex].sampleData;
-        if (sampleToRemove != null)         // Odtsraní Sample ze všech Beatù
+        SampleData sampleToRemove = m2RowHandlers[rowIndex].sampleData;
+        if (sampleToRemove != null)
         {
-            Beats.ForEach(beatList => beatList.RemoveAll(sample => sample.audioClip == sampleToRemove.audioClip));
+            foreach (var beatList in Beats)
+            {
+                beatList.RemoveAll(sample => sample.audioClip == sampleToRemove.audioClip);
+            }
         }
 
-        Destroy(m2DropReceivers[rowIndex].gameObject.transform.parent.parent.gameObject);
+        Destroy(m2RowHandlers[rowIndex].gameObject.transform.parent.parent.gameObject);
 
-        m2DropReceivers.RemoveAt(rowIndex);     // Odebere øadu ze všech Listù
-        mode2Rows.RemoveAt(rowIndex);
+        m2RowHandlers.RemoveAt(rowIndex);
+        m2RowsButtons.RemoveAt(rowIndex);
+        m2RowsButtonScripts.RemoveAt(rowIndex);
 
-        for (int i = rowIndex; i < m2DropReceivers.Count; i++)     // Zmìní index na správný všem následujícím dropReceiverùm
+        for (int i = rowIndex; i < m2RowHandlers.Count; i++)
         {
-            m2DropReceivers[i].rowIndex = i;
+            m2RowHandlers[i].rowIndex = i;
         }
     }
 
@@ -386,28 +544,20 @@ public class GameManager : MonoBehaviour
 
 
 
-
-
-
-
     #endregion
 
     #endregion
 
 
-    //////////////////////////////////////////////////
-
-
+    //////////////////////////////////////
 
 
     #region IsUniqueSamplePanel(), ReplaceSampleDataInBeat()
 
 
-
-
     public bool IsUniqueSamplePanel(AudioClip sampleClip)
     {
-        foreach (var receiver in m2DropReceivers)
+        foreach (var receiver in m2RowHandlers)
         {
             if (receiver.sampleData != null && receiver.sampleData.audioClip == sampleClip)
             {
@@ -418,7 +568,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void ReplaceSampleDataInBeat(int buttonIndex, SampleData oldSampleData, SampleData newSampleData)    // vymìní nový sample za starý
+    public void ReplaceSampleDataInBeat(int buttonIndex, SampleData oldSampleData, SampleData newSampleData)
     {
 
 
@@ -428,54 +578,36 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-
-
-
     #endregion
 
 
-    #region  ResetRowsButtonState(), ReplaceM2ButtonSampleData()
+    //////////////////////////////////////
 
 
-    public void ResetRowsButtonState(int rowIndex)
+    #region ResetM2ButtonsAndReplaceSampleData(), GetAllButtonIndexesForSample()
+
+    public void ResetM2ButtonsAndReplaceSampleData(int rowIndex, SampleData newSampleData)
     {
-        foreach (var button in mode2Rows[rowIndex])
-        {
-            M2Button m2ButtonScript = button.GetComponent<M2Button>();
+        if (rowIndex < 0 || rowIndex >= m2RowsButtonScripts.Count)
+            return;
 
+        foreach (M2Button m2ButtonScript in m2RowsButtonScripts[rowIndex])
+        {
             m2ButtonScript.ResetButtonState();
+            m2ButtonScript.SetButtonsSampleData(newSampleData);
         }
     }
 
-    public void ReplaceM2ButtonSampleData(int rowIndex, SampleData newSampleData)   // Updatne SampleData m2tlaèítek
-
-    {
-
-        foreach (var button in mode2Rows[rowIndex])
-        {
-            M2Button m2ButtonScript = button.GetComponent<M2Button>();
-
-            m2ButtonScript.ReplaceButtonsSampleData(newSampleData); // newSampleData, Clicked = false, defaultColor
-        }
-    }
-    #endregion
 
 
-
-    #region GetAllButtonIndexesForSample(), GetM2ButtonScriptByIndex()
-    public List<int> GetAllButtonIndexesForSample(SampleData sample) // Projede všechny beaty, pokud beat obsahuje daný sample, pøidá index beatu do buttonIndexes
+    public List<int> GetAllButtonIndexesForSample(SampleData sample)
     {
         List<int> buttonIndexes = new();
 
 
         for (int i = 0; i < 64; i++)
         {
-
-            bool containsSample = Beats[i].Any(sd => sd.audioClip.name == sample.audioClip.name);
-
-
-            if (containsSample)
+            if (Beats[i].Any(sd => sd.audioClip.name == sample.audioClip.name))
             {
                 buttonIndexes.Add(i);
             }
@@ -485,37 +617,19 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public M2Button GetM2ButtonScriptByIndex(int rowIndex, int buttonIndex)
-    {
-
-
-
-        if (rowIndex < mode2Rows.Count && buttonIndex < mode2Rows[rowIndex].Count)
-        {
-            return mode2Rows[rowIndex][buttonIndex].GetComponent<M2Button>();
-        }
-        return null;
-    }
-
-
     #endregion
 
 
-
-
-    ////////////////////////////////////////////////
-
-
+    /////////////////////////////////////
 
 
     #region AddSampleDataToBeat(), RemoveSampleDataFromBeat(), BeatContainsSample()
-   
+
     public void AddSampleDataToBeat(int buttonIndex, SampleData sampleData)
     {
         var beatList = Beats[buttonIndex];
+
         beatList.Add(sampleData);
-
-
         beatList.Sort((sample1, sample2) => sample1.sampleIndex.CompareTo(sample2.sampleIndex));
     }
 
@@ -535,13 +649,6 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
-
-
-
-
-
-
-
 
 
 }

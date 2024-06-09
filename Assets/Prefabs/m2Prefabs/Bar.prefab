@@ -40,7 +40,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7117233435777355541
 CanvasRenderer:
@@ -68,7 +68,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 5
   m_ChildAlignment: 7
-  m_Spacing: 0
+  m_Spacing: 0.5
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -170,6 +170,10 @@ PrefabInstance:
     - target: {fileID: 5301396336774362947, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5539898831205533312, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.00001335144
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
@@ -273,6 +277,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5539898831205533312, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.00001335144
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
 --- !u!224 &315239785899745578 stripped
@@ -375,6 +383,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5539898831205533312, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.00001335144
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f62c46599efa1c4785ed90f3f86628f, type: 3}
 --- !u!224 &2865652531541360135 stripped
@@ -389,6 +401,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7117233435777355546}
     m_Modifications:
+    - target: {fileID: 4445321444430864031, guid: 6bdaab894886aaf408d4bb372fb2cf48, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.0000038146973
+      objectReference: {fileID: 0}
     - target: {fileID: 4500754873514286506, guid: 6bdaab894886aaf408d4bb372fb2cf48, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
