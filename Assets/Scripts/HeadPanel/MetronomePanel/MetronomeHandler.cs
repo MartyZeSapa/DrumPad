@@ -53,7 +53,6 @@ public class MetronomeHandler : MonoBehaviour
         if (audioSource != null && selectedSound != null)
         {
             audioSource.clip = selectedSound;
-            Debug.Log(selectedSound);
         }
 
         UpdateButtonColors(soundIndex);
@@ -132,5 +131,12 @@ public class MetronomeHandler : MonoBehaviour
         isReset = false;
     }
 
+    public void SetVolume(float volume)
+    {
+        if (audioSource != null)
+        {
+            audioSource.volume = volume;
+        }
+    }
 }
 

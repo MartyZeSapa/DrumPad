@@ -34,11 +34,8 @@ public class AudioPlaybackManager : MonoBehaviour
 
     void Start()
     {
-        if (volumeSlider != null)
-        {
-            //volumeSlider.onValueChanged.AddListener(SetVolumeForAllMetronomes);
-            volumeSlider.value = 1.0f; // Default volume to max
-        }
+        volumeSlider.onValueChanged.AddListener(SetVolumeForAllMetronomes);
+        volumeSlider.value = 1.0f; // Default volume to max
     }
 
     public void StartPlayback()
@@ -158,4 +155,13 @@ public class AudioPlaybackManager : MonoBehaviour
         currentTimeSignature = newTimeSignature;
         gameManager.SetCurrentTimeSignature(newTimeSignature);
     }
+
+    public void SetVolumeForAllMetronomes(float volume)
+    {
+        foreach (var metronomeHandler in metronomeHandlers)
+        {
+            metronomeHandler.SetVolume(volume);
+        }
+    }
+
 }
