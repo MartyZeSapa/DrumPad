@@ -664,11 +664,11 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 0
-  cloudProjectId: 
+  cloudProjectId: 73966c8d-95eb-44f6-86c5-57ab186398f5
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: DrumPad
+  organizationId: martyzesapa
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
